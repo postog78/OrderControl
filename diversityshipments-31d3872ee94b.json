@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "diversityshipments",
+  "private_key_id": "31d3872ee94bc5633b357a904369a5967ddd606a",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDA5iPVJZnZkZQ/\nZEUK1hva7vKJ9hYZ7KwfRBeJYNm2Xl0UiT9hoxHLzKEkIiQ74zYM+tM9lvkacF3h\n8y5mzmPVcsnUVbg9udspHanj9bw95Um7cz3HFccHMiaj0DXZ9YtMvh34BbYXszPY\nMDNRZd5cc4Lm/AJaZHBMZBPj11NWI/sIfCbMDsI3Pw4nqeoWgDxDOwzsINTpczva\n3ue99s4QAXgPv7QdCVJHusKsELonbcSjPvurvbUzePEcXco67rvYUUMHagpItDOd\nXMa+lzrmXH47h8qAo4TgsvynOl1dYYY/IrI0xfjnfI/vqhl/HaRA+qVrKJEmCZ04\nDSeGjJ8vAgMBAAECggEAAcCPmQG4pI6IyphRFmqQ3efY9JPMrCPqXqQIhMJtF9e+\nrnYxyPsMUABr0FuDhStB8ijIYgMr4QDIuBOGDeyWUZEI6HtPdQiQw0iDyZwJyy86\nwo+Xc6wjLlmFopLfYxSyue1G1qfC/Uhs+wMrIjoeckNjcCIeMUsYz/tAYDaBzwLR\n/HfXhfcpca9Vq3QpI40lZ6F09lyEmEymYU798vKHoAyB2MX+dSpU9IZ6IF5HFdr9\n+K6iHpNqBevpJSr+KzEt0UI9ToQYRG+f8LDpFpNjNui980RhJALIt3xShmMS8e9Q\nOkm3/xf/dxRd4yTTwed3BYrYDtGWrPJ1wSt38pZCoQKBgQD6eoBwj5eJO+OzYT/2\n5/EJ3vq9tG+WaK7dU3yb9qINb0VAKSEqR/SISdSDYKM+ST2HP5TG9qh0IryQyY/E\nfewRVs8qaef+Kck2dAikVJsrpULk3YWyABnms9oTXpXX7PBZPaMJO24CituQKiZj\n6RjerYZmv1ei/FqzrAsDWudmnwKBgQDFJrS1PMiVVeBRHl6yWDprxfD0Uvtb45HD\nXrJT6QGt4zqqurUFtF82CyzEHG6yN2S9PHegIC3s69VkzGfbBTXwrHYB7b0OGEQo\nHsJiC5b5iKkbsHwgwKHAb5BV2vK8VhlTuVC0BulfdxBC+dc3n6hLYNidSw3pq9Vx\nn2Trk+XNcQKBgHomM2yxGd0675gS3PaztcBylSTeUWywMFaO2D3W0MBsewEHDb1o\nyb+NAa3v+qvtW6wRPaSptQytw/d31Dymi/EIvI6ahyBTkGSVwYEiIWnvdefWf9SG\naBsxqi+3+KsMSUm73T4rVUK4JMrxQzeF/TLavKhut3YsSq9EPzqroh1RAoGBAMQC\nEGWkEfRO1d8wZ4u+pg6iVEZE/jzESxZHXtqH7TB5mslFKVaLlqF/iLlNX0z2P8TY\nikJ7280SRy2Y/6REUPWAMS8Hsw+BVrngoveheC+NDDxIQZC6k9Zj1MdXED/pBfM0\naiUiPgG4uUUtaiiWJlcS6SmxBhsMyP/XLhn9B9sxAoGBAPbAJW1kVJ7hfVbHbisf\nM+oeJtyIz6ErSkv3T6pTox9J6qZrJRojQ7+VOKsN/1cczPZ2U8prcTDw4kUFr5WY\nBXYTQGNNmUbQWjvts6GtlpWk2e+tDoTPGlW92Ur4w1ae2euREDznhqSMDQ/On9EX\nbd35UwheqrCffLPbpmMWT1uk\n-----END PRIVATE KEY-----\n",
+  "client_email": "id-43-710@diversityshipments.iam.gserviceaccount.com",
+  "client_id": "114311981633500209479",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/id-43-710%40diversityshipments.iam.gserviceaccount.com"
+}
