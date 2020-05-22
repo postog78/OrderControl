@@ -1,64 +1,93 @@
 package excelconnector
 
 import (
+	model "OrderControl/app/model"
 	"errors"
 	"fmt"
 	"log"
 	"time"
-	"OrderControl/app/model"
 
 	"github.com/tealeg/xlsx"
 )
 
+type AeroFuels struct {
+	Name       string
+	PathToDir  string
+	ListReport []model.TypeReport
+}
 
-var excelFileName string = `C:\Users\Dell\Documents\Go\OrderControl\Files\Отчеты базисов об отгрузках\Базис 1\ИНТ_Остатки 2020.xlsx`
+// var excelFileName string = `C:\Users\Dell\Documents\Go\OrderControl\Files\Отчеты базисов об отгрузках\Базис 1\ИНТ_Остатки 2020.xlsx`
 
-func GetDataFromExcelFile() ([]model.TypeReport, error) {
-	listReport = make([]model.TypeReport, 0, 20)
-	var dateOrder time.Time = time.Date(2020, time.April, 22, 0, 0, 0, 0, time.UTC)
-	xlFile, err := xlsx.OpenFile(excelFileName)
-	if err != nil {
-		fmt.Printf("open failed: %s\n", err)
-	}
-	numOfSheet := len(xlFile.Sheets)
-	switch {
-	case numOfSheet == 0:
-		return nil, errors.New("This XLSX file contains no sheets.")
-		// case sheetIndex >= sheetLen:
-		// 	return fmt.Errorf("No sheet %d available, please select a sheet between 0 and %d\n", sheetIndex, sheetLen-1)
-	}
+func (basis *AeroFuels) Init() {
+	basis.Name = "Аэрофьюэл"
+	basis.PathToDir = "C:\\Users\\User\\go\\src\\OrderControl\\Файлы\\Отгрузки\\Аэрофьюэлз" //path.Join(pathToShipments, "Аэрофьюэл")
+}
 
-	shitName := dateOrder.Format("02.01")
-	var currentSheet *xlsx.Sheet
-	// fmt.Printf("%v\n", xlFile.Sheet)
-	for _, currentSheet = range xlFile.Sheets {
-		if shitName == currentSheet.Name {
-			fmt.Printf("Sheet Name: %s\n", currentSheet.Name)
-			// sheet := sheet
-			//currentSheet = currentSheet
-			break
-		}
-	}
-	sheetRows := currentSheet.MaxRow
-	for i := 5; i < sheetRows; i++ {
-		proposalNum, err := currentSheet.Cell(i, 9)
-		// proposalNum, err := sheet.Cell(i, 9)
+func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, error) {
+
+	basis.ListReport = nil
+	var fullListReport []model.TypeReport = make([]model.TypeReport, 0, 50)
+
+	var dateOrder time.Time //Дата, на которую смотрим загрузку
+
+	for _, excelFileName := range model.GetFiles(basis.PathToDir) {
+		xlFile, err := xlsx.OpenFile(excelFileName)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Printf("open failed: %s\n", err)
 		}
-		proposalDate, err := currentSheet.Cell(i, 10)
-		if err != nil {
-			log.Fatal(err)
+
+		numOfSheet := len(xlFile.Sheets)
+		switch {
+		case numOfSheet == 0:
+			return nil, errors.New("This XLSX file contains no sheets.")
+			// case sheetIndex >= sheetLen:
+			// 	return fmt.Errorf("No sheet %d available, please select a sheet between 0 and %d\n", sheetIndex, sheetLen-1)
 		}
-		if proposalNum==nil{
-			continue
+
+		for _, dateOrder = range model.RangeDate(dateBegin, dateEnd) {
+			shitName := dateOrder.Format("02.01")
+			var currentSheet *xlsx.Sheet
+			// fmt.Printf("%v\n", xlFile.Sheet)
+			for _, currentSheet = range xlFile.Sheets {
+				if shitName == currentSheet.Name {
+					fmt.Printf("Sheet Name: %s\n", currentSheet.Name)
+					// sheet := sheet
+					//currentSheet = currentSheet
+					break
+				}
+			}
+
+			listReport := make([]model.TypeReport, 0, 20)
+
+			sheetRows := currentSheet.MaxRow
+			for i := 5; i < sheetRows; i++ {
+				proposalNum, err := currentSheet.Cell(i, 9)
+				// proposalNum, err := sheet.Cell(i, 9)
+				if err != nil {
+					log.Fatal(err)
+				}
+				proposalDate, err := currentSheet.Cell(i, 10)
+				if err != nil {
+					log.Fatal(err)
+				}
+				if proposalNum == nil {
+					continue
+				}
+				var elem model.TypeReport
+
+				elem = model.TypeReport{
+					NumOrder: 1,
+					Weight:   2,
+					Date:     time.Now(),
+					Volume:   3,
+				}
+				listReport = append(listReport, elem)
+				fmt.Printf("%v\t%v\n", proposalDate, proposalNum) // Print values in columns B and D
+			}
+			_ = copy(fullListReport, listReport)
 		}
-		var elem TypeReport
-		
-		elem = TypeReport{}
-		append(listReport, elem) 
-		fmt.Printf("%v\t%v\n", proposalDate, proposalNum) // Print values in columns B and D
 	}
+	// var dateOrder time.Time =
 
 	// for rows.Next() {
 	// 	row := rows.Columns()
@@ -71,5 +100,14 @@ func GetDataFromExcelFile() ([]model.TypeReport, error) {
 	// 		}
 	// 	}
 	// }
-	return listReport, nil
+	basis.ListReport = fullListReport
+	return fullListReport, nil
+}
+
+func (basis *AeroFuels) GetData() []model.TypeReport {
+	return basis.ListReport
+}
+
+func (basis *AeroFuels) GetName() string {
+	return basis.Name
 }

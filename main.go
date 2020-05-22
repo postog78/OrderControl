@@ -1,8 +1,9 @@
 package main
 
 import (
-	"./app/excelConnector"
-	"./app/model"
+	"OrderControl/app/excelconnector"
+	"log"
+	"time"
 )
 
 func main() {
@@ -59,8 +60,37 @@ func main() {
 	// if err != nil {
 	// 	log.Fatalf("Unable to retrieve data from sheet. %v", err)
 	// }
-	var listReport []model.TypeReport
-	listReport, _ = excelConnector.GetDataFromExcelFile()
+
+	//Нам известно о следующих форматах файлов
+	//Аэрофьюэлз
+	// var listConnector []model.TypeConnector = [
+	// 		{"Аэрофьюэлз", excelconnector.GetDataFromExcelFileAeroFuels()}
+	// 	]
+	var listConnector []excelconnector.ConnectorExcelReader
+	var aeroFuels excelconnector.AeroFuels
+	var reader excelconnector.ConnectorExcelReader = &aeroFuels
+	listConnector = append(listConnector, reader)
+
+	var dateBegin time.Time = time.Date(2020, time.April, 22, 0, 0, 0, 0, time.UTC)
+	var dateEnd time.Time = time.Date(2020, time.April, 22, 0, 0, 0, 0, time.UTC)
+
+	for _, reader := range listConnector {
+		reader.Init()
+		_, err := reader.Read(dateBegin, dateEnd)
+		if err != nil {
+			log.Fatalf("Не получилось прочитать файл %s. %v", reader.GetName(), err)
+		}
+	}
+
+	excelconnector.WriteDataToGooleSheetFromReaders(listConnector)
+	// li{excelconnector.GetDataFromExcelFileAeroFuels()}
+
+	// var listReport []model.TypeReport
+	// for connector
+	// listReport, _ = excelconnector.GetDataFromExcelFile()
+	// if len(listReport) > 0 {
+	// 	return
+	// }
 }
 
 // Просто ключ AIzaSyBg2jgYgXgjlhqTJNK3iN3KVeNE9acf0vU
