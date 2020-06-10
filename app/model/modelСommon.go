@@ -1,9 +1,12 @@
 package model
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"path"
+	"path/filepath"
 	"time"
 )
 
@@ -13,6 +16,14 @@ type TypeReport struct {
 	Date     time.Time
 	Volume   int
 }
+
+
+var spreadsheetId string = "183IDyrxg5PczVLewXMronbduZy50ukDiqNUGgnloqQQ"
+
+func (t TypeReport) String() string {
+	return fmt.Sprintf("NumOrder: %v; Weight: %v; Volume: %v Date: %v", t.NumOrder, t.Weight, t.Volume, t.Date)
+}
+
 type TypeConnector struct {
 	Folder string
 	f      func()
@@ -33,14 +44,14 @@ func GetFiles(nameDir string) (fileNameList []string) {
 		return
 	}
 
-	files, err := ioutil.ReadDir(".xlsx")
+	files, err := ioutil.ReadDir(nameDir)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, file := range files {
-		if !file.IsDir() {
-			fileNameList = append(fileNameList, file.Name())
+		if !file.IsDir() && filepath.Ext(file.Name()) == ".xlsx" {
+			fileNameList = append(fileNameList, path.Join(nameDir, file.Name()))
 		}
 		// fmt.Println(file.Name(), file.IsDir())
 	}

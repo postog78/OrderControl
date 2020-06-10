@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"path"
 	"time"
 
 	"github.com/tealeg/xlsx"
@@ -19,8 +20,10 @@ type AeroFuels struct {
 // var excelFileName string = `C:\Users\Dell\Documents\Go\OrderControl\Files\Отчеты базисов об отгрузках\Базис 1\ИНТ_Остатки 2020.xlsx`
 
 func (basis *AeroFuels) Init() {
-	basis.Name = "Аэрофьюэл"
-	basis.PathToDir = "C:\\Users\\User\\go\\src\\OrderControl\\Файлы\\Отгрузки\\Аэрофьюэлз" //path.Join(pathToShipments, "Аэрофьюэл")
+	basis.Name = "Аэрофьюэлз"
+	// basis.PathToDir = "C:\\Users\\User\\go\\src\\OrderControl\\Файлы\\Отгрузки\\Аэрофьюэлз" //path.Join(pathToShipments, "Аэрофьюэл")
+	// basis.PathToDir = "C:/Users/User/go/src/OrderControl/Файлы/Отгрузки/Аэрофьюэлз"         //path.Join(pathToShipments, "Аэрофьюэл")
+	basis.PathToDir = path.Join(pathToShipments, basis.Name)
 }
 
 func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, error) {
@@ -34,6 +37,7 @@ func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 		xlFile, err := xlsx.OpenFile(excelFileName)
 		if err != nil {
 			fmt.Printf("open failed: %s\n", err)
+			return nil, err
 		}
 
 		numOfSheet := len(xlFile.Sheets)
@@ -48,13 +52,19 @@ func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 			shitName := dateOrder.Format("02.01")
 			var currentSheet *xlsx.Sheet
 			// fmt.Printf("%v\n", xlFile.Sheet)
+			shitNameWasFound := false
 			for _, currentSheet = range xlFile.Sheets {
 				if shitName == currentSheet.Name {
-					fmt.Printf("Sheet Name: %s\n", currentSheet.Name)
+					shitNameWasFound = true
+					// fmt.Printf("Sheet Name: %s\n", currentSheet.Name)
 					// sheet := sheet
 					//currentSheet = currentSheet
 					break
 				}
+			}
+
+			if !shitNameWasFound {
+				continue
 			}
 
 			listReport := make([]model.TypeReport, 0, 20)
@@ -66,25 +76,46 @@ func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 				if err != nil {
 					log.Fatal(err)
 				}
+				if proposalNum == nil || proposalNum.Value == "" {
+					continue
+				}
+
 				proposalDate, err := currentSheet.Cell(i, 10)
 				if err != nil {
 					log.Fatal(err)
 				}
-				if proposalNum == nil {
-					continue
+
+				proposalWeight, err := currentSheet.Cell(i, 6)
+				if err != nil {
+					log.Fatal(err)
 				}
+
+				proposalVolume, err := currentSheet.Cell(i, 4)
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				numOrder, _ := proposalNum.Int()
+				weight, _ := proposalWeight.Int()
+				// date, err := strconv.Atoi(proposalNum)
+				date, _ := proposalDate.GetTime(proposalDate.Row.Sheet.File.Date1904)
+				//date, _ := proposalDate.GetTime(false)
+				volume, _ := proposalVolume.Int()
+
 				var elem model.TypeReport
 
 				elem = model.TypeReport{
-					NumOrder: 1,
-					Weight:   2,
-					Date:     time.Now(),
-					Volume:   3,
+					NumOrder: numOrder,
+					Weight:   weight,
+					Date:     date,
+					Volume:   volume,
 				}
 				listReport = append(listReport, elem)
-				fmt.Printf("%v\t%v\n", proposalDate, proposalNum) // Print values in columns B and D
+				fmt.Println(elem) // Print values in columns B and D
 			}
-			_ = copy(fullListReport, listReport)
+			for _, elem := range listReport {
+				fullListReport = append(fullListReport, elem)
+			}
 		}
 	}
 	// var dateOrder time.Time =

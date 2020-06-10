@@ -7,7 +7,9 @@ func WriteDataToGooleSheetFromReaders(listConnector []ConnectorExcelReader) {
 	var readerReportFull []model.TypeReport
 	for _, reader := range listConnector {
 		readerReport = reader.GetData()
-		_ = copy(readerReportFull, readerReport)
+		for _, elem := range readerReport {
+			readerReportFull = append(readerReportFull, elem)
+		}
 	}
-	model.WriteDataToGooleSheet(readerReportFull)
+	model.WriteDataToGoogleSheet(readerReportFull)
 }
