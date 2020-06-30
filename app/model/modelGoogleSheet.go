@@ -3,10 +3,12 @@ package model
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -32,11 +34,69 @@ func WriteDataToGoogleSheet(readerReport []TypeReport) {
 	}
 
 	//Определить и запомнить список листов
-	getSheetsList(srv)
-	//Перебираем список считанных из эксель данных и определяем, на каких листах они могут лежать.
+	mapGoolgeSheets := getSheetsList(srv)
+
+	//Инициализируем настройки листов
+	mapSheetsSettings := make(map[*sheets.Sheet]sheetSetting)
+
+	dataToSearch := make([]dataToSearchInGoogleSheets, len(readerReport))
+	for i, rep := range readerReport {
+		sheetsOfDate := mapGoolgeSheets.getSheetsForDateWithMonthBefore(rep.Date)
+		dataToSearch[i].rep = rep
+		dataToSearch[i].sheets = sheetsOfDate
+
+		for _, sh := range sheetsOfDate {
+			addSettings(mapSheetsSettings, sh)
+			fmt.Printf("Date %v Title %#v; ", rep.Date, sh.Properties.Title)
+		}
+		fmt.Println()
+
+	}
+	//SearchData(dataToSearch)
 	//Запоминаем путь в гугл шит для каждой позиции. //Если позиций несколько, то остаётся только первая найденная.
 	//Пишем данные
 }
+
+func addSettings(m map[*sheets.Sheet]sheetSetting, sh *sheets.Sheet) {
+	_, ok := m[sh]
+	if ok {
+		return
+	}
+	// data := sh.Data;
+	fmt.Println("Columns ", sh.getLastRow())
+	// sh.ColumnGroups
+	// for data.
+}
+
+func SearchData(srv *sheets.Service, dataToSearch dataToSearchInGoogleSheets) {
+	//Продажа Апрель Заявка E, Масса K, Дата L
+	//Продажа Апрель Заявка _, Масса J, Дата K
+	//Продажа Джет Заявка E, Масса K, Дата L
+	//Продажа ВЛПДС Заявка _, Масса K, Дата L
+	//Продажа Март Регионы E, K, L
+
+}
+
+func getMonthBefore(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month()-1, 1, 0, 0, 0, 0, time.UTC)
+}
+
+func (m mapGoogleSheetsByMonth) getSheetsForDateWithMonthBefore(date time.Time) []*sheets.Sheet {
+	sheetsOfDate := m.getSheetsOfDate(date)
+	sheetsOfDateBefore := m.getSheetsOfDate(getMonthBefore(date))
+	for _, oneSheet := range sheetsOfDateBefore {
+		sheetsOfDate = append(sheetsOfDate, oneSheet)
+	}
+	return sheetsOfDate
+}
+
+func (mapGoolgeSheets mapGoogleSheetsByMonth) getSheetsOfDate(t time.Time) []*sheets.Sheet {
+	firstday := time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, time.UTC)
+	// fmt.Println("Извлечение", firstday)
+	sheets, _ := mapGoolgeSheets.mapSheets[firstday]
+	return sheets
+}
+
 func getGoogleSheetSrv() (*sheets.Service, error) {
 
 	b, err := ioutil.ReadFile("diversityshipments-31d3872ee94b.json")
@@ -63,7 +123,7 @@ func getGoogleSheetSrv() (*sheets.Service, error) {
 	return srv, nil
 }
 
-func getSheetsList(sheetsService *sheets.Service) {
+func getSheetsList(sheetsService *sheets.Service) mapGoogleSheetsByMonth {
 	// True if grid data should be returned.
 	// This parameter is ignored if a field mask was set in the request.
 	// includeGridData := false // TODO: Update placeholder value.
@@ -76,12 +136,14 @@ func getSheetsList(sheetsService *sheets.Service) {
 	resp := sheetsService.Spreadsheets.Get(spreadsheetId)
 	var ss *sheets.Spreadsheet
 	ss, _ = resp.Do()
-	map_sheet := make(map[time.Time]*sheets.Sheet)
+	var mapSheet mapGoogleSheetsByMonth
+	// var pointMapSheet = &mapSheet
 
-	for _, google_sheet := range ss.Sheets {
-		key, err := getTimeFromTitleSheet(google_sheet.Properties.Title)
+	for _, googleSheet := range ss.Sheets {
+		key, err := getTimeFromTitleSheet(googleSheet.Properties.Title)
 		if err == nil {
-			map_sheet[key] = google_sheet
+			(&mapSheet).Insert(key, googleSheet)
+			// pointMapSheet.Insert(key, googleSheet)
 		}
 	}
 	// // resp_sheets := resp.Get("sheets")
@@ -90,7 +152,9 @@ func getSheetsList(sheetsService *sheets.Service) {
 	// // 	log.Fatal(err)
 	// // }
 
-	// fmt.Printf("%#v\n", sheetList)
+	return mapSheet
+	// fmt.Printf("%#v\n", len(mapSheet.mapSheets))
+	// fmt.Printf("%#v\n", mapSheet)
 
 	// Prints the names and majors of students in a sample spreadsheet:
 	// https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
@@ -164,21 +228,21 @@ func getTimeFromTitleSheet(title string) (ret_time time.Time, err error) {
 		err = errors.New("No title for sheet")
 		return
 	}
-	re := regexp.MustCompile(`(Январь|Февраль|Март|Апрель|Май|Июнь|Июль|Август|Сентябрь|Октябрь|Ноябрь|Декабрь) (\d{4})`)
+	re := regexp.MustCompile(`(?i)(Январь|Февраль|Март|Апрель|Май|Июнь|Июль|Август|Сентябрь|Октябрь|Ноябрь|Декабрь) (\d{4})`)
 	map_month := map[string]time.Month{
-		"Январь": time.January, "Февраль": time.February, "Март": time.March,
-		"Апрель": time.April, "Май": time.May, "Июнь": time.June,
-		"Июль": time.July, "Август": time.August, "Сентябрь": time.September,
-		"Октябрь": time.October, "Ноябрь": time.November, "Декабрь": time.December,
+		"январь": time.January, "февраль": time.February, "март": time.March,
+		"апрель": time.April, "май": time.May, "июнь": time.June,
+		"июль": time.July, "август": time.August, "сентябрь": time.September,
+		"октябрь": time.October, "ноябрь": time.November, "декабрь": time.December,
 	}
 	//На всякий случай берём на три года назад и только с целью разработки
 	var matches [][]string = re.FindAllStringSubmatch(title, -1)
 	if !(len(matches) == 1 && len(matches[0]) == 3) {
-		err = errors.New("This is not a template")
+		err = errors.New("This is not a our template")
 		return
 	}
 	year, _ := strconv.Atoi(matches[0][2])
-	ret_time = time.Date(year, map_month[matches[0][1]], 0, 0, 0, 0, 0, time.UTC)
+	ret_time = time.Date(year, map_month[strings.ToLower(matches[0][1])], 1, 0, 0, 0, 0, time.UTC)
 	return
 	// matches[1]
 	// Продажа Февраль 2020 (РЕГИОНЫ)

@@ -8,6 +8,8 @@ import (
 	"path"
 	"path/filepath"
 	"time"
+
+	"google.golang.org/api/sheets/v4"
 )
 
 type TypeReport struct {
@@ -17,6 +19,10 @@ type TypeReport struct {
 	Volume   int
 }
 
+type dataToSearchInGoogleSheets struct {
+	rep    TypeReport
+	sheets []*sheets.Sheet
+}
 
 var spreadsheetId string = "183IDyrxg5PczVLewXMronbduZy50ukDiqNUGgnloqQQ"
 
@@ -81,3 +87,37 @@ func RangeDate(start, end time.Time) (list []time.Time) {
 	}
 	return
 }
+
+// type GoogleSheets struct {
+// 	Sheets []*sheets.Sheet
+// }
+
+type mapGoogleSheetsByMonth struct {
+	mapSheets map[time.Time][]*sheets.Sheet
+}
+
+type columnNum int
+
+//Перебираем список считанных из эксель данных и определяем, на каких листах они могут лежать.
+func (t *mapGoogleSheetsByMonth) Insert(month time.Time, gs *sheets.Sheet) {
+	if t.mapSheets == nil {
+		t.mapSheets = make(map[time.Time][]*sheets.Sheet)
+	}
+	googleSheets, ok := t.mapSheets[month]
+	if ok {
+		googleSheets = append(googleSheets, gs)
+	} else {
+		var googleSheets = make([]*sheets.Sheet, 0, 5)
+		googleSheets = append(googleSheets, gs)
+		// fmt.Println("Помещение", month)
+
+	}
+	t.mapSheets[month] = googleSheets
+}
+
+type sheetSetting struct {
+	NumOrder columnNum //column
+	Weight   columnNum //column
+	Date     columnNum //column
+}
+
