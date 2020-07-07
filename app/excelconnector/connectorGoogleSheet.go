@@ -2,6 +2,7 @@ package excelconnector
 
 import model "OrderControl/app/model"
 
+//WriteDataToGooleSheetFromReaders записываем данные в гугл файл
 func WriteDataToGooleSheetFromReaders(listConnector []ConnectorExcelReader) {
 	var readerReport []model.TypeReport
 	var readerReportFull []model.TypeReport

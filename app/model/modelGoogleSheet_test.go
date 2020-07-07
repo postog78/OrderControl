@@ -13,7 +13,7 @@ func Test_getTimeFromTitleSheet(t *testing.T) {
 	tests := []struct {
 		name         string
 		args         args
-		wantRet_time time.Time
+		wantRetTime  time.Time
 		wantErr      bool
 	}{
 		{"Норма 1. Продажа Декабрь 2019 (РЕГИОНЫ)", args{"Продажа Декабрь 2019 (РЕГИОНЫ)"}, time.Date(2019, time.December, 1, 0, 0, 0, 0, time.UTC), false},
@@ -27,12 +27,12 @@ func Test_getTimeFromTitleSheet(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotRet_time, err := getTimeFromTitleSheet(tt.args.title)
+			gotRetTime, err := getTimeFromTitleSheet(tt.args.title)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getTimeFromTitleSheet() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(gotRet_time, tt.wantRet_time) {
+			if !reflect.DeepEqual(gotRet_time, tt.wantRetTime) {
 				t.Errorf("getTimeFromTitleSheet() = %v, want %v", gotRet_time, tt.wantRet_time)
 			}
 		})

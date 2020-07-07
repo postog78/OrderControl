@@ -7,7 +7,6 @@ import (
 )
 
 func main() {
-	
 
 	//Нам известно о следующих форматах файлов
 	//Аэрофьюэлз
@@ -18,6 +17,10 @@ func main() {
 	var aeroFuels excelconnector.AeroFuels
 	var reader excelconnector.ConnectorExcelReader = &aeroFuels
 	listConnector = append(listConnector, reader)
+
+	var okaCenter excelconnector.OkaCenter
+	// var reader excelconnector.ConnectorExcelReader = &aeroFuels
+	listConnector = append(listConnector, &okaCenter)
 
 	var dateBegin time.Time = time.Date(2020, time.April, 20, 0, 0, 0, 0, time.UTC)
 	var dateEnd time.Time = time.Date(2020, time.April, 22, 0, 0, 0, 0, time.UTC)
@@ -30,7 +33,7 @@ func main() {
 		}
 	}
 
-	excelconnector.WriteDataToGooleSheetFromReaders(listConnector)
+	//excelconnector.WriteDataToGooleSheetFromReaders(listConnector)
 	// li{excelconnector.GetDataFromExcelFileAeroFuels()}
 
 	// var listReport []model.TypeReport

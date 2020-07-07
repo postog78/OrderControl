@@ -11,6 +11,7 @@ import (
 	"github.com/tealeg/xlsx"
 )
 
+// AeroFuels - структура, хранящая данные Аэрофьюэлза
 type AeroFuels struct {
 	Name       string
 	PathToDir  string
@@ -19,6 +20,7 @@ type AeroFuels struct {
 
 // var excelFileName string = `C:\Users\Dell\Documents\Go\OrderControl\Files\Отчеты базисов об отгрузках\Базис 1\ИНТ_Остатки 2020.xlsx`
 
+// Init первоначальная инициализация объекта
 func (basis *AeroFuels) Init() {
 	basis.Name = "Аэрофьюэлз"
 	// basis.PathToDir = "C:\\Users\\User\\go\\src\\OrderControl\\Файлы\\Отгрузки\\Аэрофьюэлз" //path.Join(pathToShipments, "Аэрофьюэл")
@@ -43,7 +45,7 @@ func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 		numOfSheet := len(xlFile.Sheets)
 		switch {
 		case numOfSheet == 0:
-			return nil, errors.New("This XLSX file contains no sheets.")
+			return nil, errors.New("This XLSX file contains no sheets")
 			// case sheetIndex >= sheetLen:
 			// 	return fmt.Errorf("No sheet %d available, please select a sheet between 0 and %d\n", sheetIndex, sheetLen-1)
 		}
@@ -111,7 +113,7 @@ func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 					Volume:   volume,
 				}
 				listReport = append(listReport, elem)
-				fmt.Println(elem) // Print values in columns B and D
+				fmt.Println(basis.GetName(), elem) // Print values in columns B and D
 			}
 			for _, elem := range listReport {
 				fullListReport = append(fullListReport, elem)
@@ -135,10 +137,12 @@ func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 	return fullListReport, nil
 }
 
+//GetData возвращает данные ЛистРепорта
 func (basis *AeroFuels) GetData() []model.TypeReport {
 	return basis.ListReport
 }
 
+//GetName возвращает данные имени коннектора
 func (basis *AeroFuels) GetName() string {
 	return basis.Name
 }

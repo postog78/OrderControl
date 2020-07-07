@@ -12,11 +12,13 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
+//TypeReport - структура, содержащая основные данные по ответу нефтебазы по отгрузке
 type TypeReport struct {
 	NumOrder int
 	Weight   int //кг
 	Date     time.Time
 	Volume   int
+	Comment  string
 }
 
 type dataToSearchInGoogleSheets struct {
@@ -24,18 +26,19 @@ type dataToSearchInGoogleSheets struct {
 	sheets []*sheets.Sheet
 }
 
-var spreadsheetId string = "183IDyrxg5PczVLewXMronbduZy50ukDiqNUGgnloqQQ"
+var spreadsheetID string = "183IDyrxg5PczVLewXMronbduZy50ukDiqNUGgnloqQQ"
 
 func (t TypeReport) String() string {
 	return fmt.Sprintf("NumOrder: %v; Weight: %v; Volume: %v Date: %v", t.NumOrder, t.Weight, t.Volume, t.Date)
 }
 
-type TypeConnector struct {
-	Folder string
-	f      func()
-}
+// //TypeConnector структура, содержащая путь к папке и функцию, которую будут
+// type TypeConnector struct {
+// 	Folder string
+// 	f      func()
+// }
 
-// Exists reports whether the named file or directory exists.
+//FileExists reports whether the named file or directory exists.
 func FileExists(name string) bool {
 	if _, err := os.Stat(name); err != nil {
 		if os.IsNotExist(err) {
@@ -45,6 +48,7 @@ func FileExists(name string) bool {
 	return true
 }
 
+//GetFiles получает все документы XLSX из папки, переданной как параметр
 func GetFiles(nameDir string) (fileNameList []string) {
 	if !FileExists(nameDir) {
 		return
@@ -64,7 +68,7 @@ func GetFiles(nameDir string) (fileNameList []string) {
 	return
 }
 
-// rangeDate returns a date range function over start date to end date inclusive.
+// RangeDate returns a date range function over start date to end date inclusive.
 // After the end of the range, the range function returns a zero date,
 // date.IsZero() is true.
 func RangeDate(start, end time.Time) (list []time.Time) {
@@ -120,4 +124,3 @@ type sheetSetting struct {
 	Weight   columnNum //column
 	Date     columnNum //column
 }
-

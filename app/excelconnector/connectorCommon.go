@@ -5,7 +5,7 @@ import (
 	"path"
 	"time"
 )
-
+//ConnectorExcelReader тип, объединяющий общие методы, которые должны быть у коннекторов к данным
 type ConnectorExcelReader interface {
 	Read(start time.Time, end time.Time) ([]model.TypeReport, error)
 	Init()

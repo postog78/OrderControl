@@ -16,6 +16,7 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
+// WriteDataToGoogleSheet - функция пишет подоготовленные данные из массива TypeReport в гугл документ
 func WriteDataToGoogleSheet(readerReport []TypeReport) {
 	//Прежде чем записать данные, надо найти, где они находятся
 	//Они находятся на вкладке со специальным именем и месяцем.
@@ -63,11 +64,12 @@ func addSettings(m map[*sheets.Sheet]sheetSetting, sh *sheets.Sheet) {
 		return
 	}
 	// data := sh.Data;
-	fmt.Println("Columns ", sh.getLastRow())
+	//fmt.Println("Columns ", sh.getLastRow())
 	// sh.ColumnGroups
 	// for data.
 }
 
+//SearchData ищет в гугл документе данные, которым нужно сделать апдейт
 func SearchData(srv *sheets.Service, dataToSearch dataToSearchInGoogleSheets) {
 	//Продажа Апрель Заявка E, Масса K, Дата L
 	//Продажа Апрель Заявка _, Масса J, Дата K
@@ -90,10 +92,10 @@ func (m mapGoogleSheetsByMonth) getSheetsForDateWithMonthBefore(date time.Time) 
 	return sheetsOfDate
 }
 
-func (mapGoolgeSheets mapGoogleSheetsByMonth) getSheetsOfDate(t time.Time) []*sheets.Sheet {
+func (m mapGoogleSheetsByMonth) getSheetsOfDate(t time.Time) []*sheets.Sheet {
 	firstday := time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, time.UTC)
 	// fmt.Println("Извлечение", firstday)
-	sheets, _ := mapGoolgeSheets.mapSheets[firstday]
+	sheets, _ := m.mapSheets[firstday]
 	return sheets
 }
 
@@ -133,7 +135,7 @@ func getSheetsList(sheetsService *sheets.Service) mapGoogleSheetsByMonth {
 	// ranges := []string{} // TODO: Update placeholder value.
 
 	//resp, err := sheetsService.Spreadsheets.Get(spreadsheetId).Ranges(ranges...).IncludeGridData(includeGridData).Context(ctx).Do()
-	resp := sheetsService.Spreadsheets.Get(spreadsheetId)
+	resp := sheetsService.Spreadsheets.Get(spreadsheetID)
 	var ss *sheets.Spreadsheet
 	ss, _ = resp.Do()
 	var mapSheet mapGoogleSheetsByMonth
@@ -223,13 +225,13 @@ func getSheetsList(sheetsService *sheets.Service) mapGoogleSheetsByMonth {
 // 	log.Fatalf("Unable to retrieve data from sheet. %v", err)
 // }
 
-func getTimeFromTitleSheet(title string) (ret_time time.Time, err error) {
+func getTimeFromTitleSheet(title string) (retTime time.Time, err error) {
 	if len(title) == 0 {
 		err = errors.New("No title for sheet")
 		return
 	}
 	re := regexp.MustCompile(`(?i)(Январь|Февраль|Март|Апрель|Май|Июнь|Июль|Август|Сентябрь|Октябрь|Ноябрь|Декабрь) (\d{4})`)
-	map_month := map[string]time.Month{
+	mapMonth := map[string]time.Month{
 		"январь": time.January, "февраль": time.February, "март": time.March,
 		"апрель": time.April, "май": time.May, "июнь": time.June,
 		"июль": time.July, "август": time.August, "сентябрь": time.September,
@@ -242,7 +244,7 @@ func getTimeFromTitleSheet(title string) (ret_time time.Time, err error) {
 		return
 	}
 	year, _ := strconv.Atoi(matches[0][2])
-	ret_time = time.Date(year, map_month[strings.ToLower(matches[0][1])], 1, 0, 0, 0, 0, time.UTC)
+	retTime = time.Date(year, mapMonth[strings.ToLower(matches[0][1])], 1, 0, 0, 0, 0, time.UTC)
 	return
 	// matches[1]
 	// Продажа Февраль 2020 (РЕГИОНЫ)
