@@ -14,3 +14,16 @@ func WriteDataToGooleSheetFromReaders(listConnector []ConnectorExcelReader) {
 	}
 	model.WriteDataToGoogleSheet(readerReportFull)
 }
+
+//CreateGoogleSheet записываем данные в гугл файл
+func CreateGoogleSheet(listConnector []ConnectorExcelReader) {
+	var readerReport []model.TypeReport
+	var readerReportFull []model.TypeReport
+	for _, reader := range listConnector {
+		readerReport = reader.GetData()
+		for _, elem := range readerReport {
+			readerReportFull = append(readerReportFull, elem)
+		}
+	}
+	model.UpdateGoogleSheetReport(readerReportFull)
+}

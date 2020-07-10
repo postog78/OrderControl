@@ -82,10 +82,15 @@ func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 					continue
 				}
 
-				proposalDate, err := currentSheet.Cell(i, 10)
+				proposalComment, err := currentSheet.Cell(i, 11)
 				if err != nil {
 					log.Fatal(err)
 				}
+
+				// proposalDate, err := currentSheet.Cell(i, 10)
+				// if err != nil {
+				// 	log.Fatal(err)
+				// }
 
 				proposalWeight, err := currentSheet.Cell(i, 6)
 				if err != nil {
@@ -99,21 +104,24 @@ func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 
 				numOrder, _ := proposalNum.Int()
 				weight, _ := proposalWeight.Int()
-				// date, err := strconv.Atoi(proposalNum)
-				date, _ := proposalDate.GetTime(proposalDate.Row.Sheet.File.Date1904)
-				//date, _ := proposalDate.GetTime(false)
+				// date, _ := proposalDate.GetTime(proposalDate.Row.Sheet.File.Date1904)
+				date := dateOrder
 				volume, _ := proposalVolume.Int()
 
 				var elem model.TypeReport
 
 				elem = model.TypeReport{
-					NumOrder: numOrder,
-					Weight:   weight,
-					Date:     date,
-					Volume:   volume,
+					NumOrder:  numOrder,
+					Weight:    weight,
+					Date:      date,
+					Volume:    volume,
+					BasisName: basis.GetName(),
+					SheetName: currentSheet.Name,
+					Row:       i + 1,
+					Comment:   proposalComment.String(),
 				}
 				listReport = append(listReport, elem)
-				fmt.Println(basis.GetName(), elem) // Print values in columns B and D
+				fmt.Println(elem) // Print values in columns B and D
 			}
 			for _, elem := range listReport {
 				fullListReport = append(fullListReport, elem)

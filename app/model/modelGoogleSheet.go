@@ -16,6 +16,116 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
+func UpdateGoogleSheetReport(readerReport []TypeReport) {
+	// var mapSheetsFromDate map[time.Time][]*sheets.Sheet
+	var sheetID string = "1Z7KluzcrGpLu_TVyGUBicwt_mpc1X3FhGlfGluUXh-8"
+
+	// var mapSheet mapGoogleSheetsByMonth
+	// var pointMapSheet = &mapSheet
+
+	sheetsService, err := getGoogleSheetSrv()
+	if err != nil {
+		if err != nil {
+			log.Fatalf("Unable to retrieve Sheets client: %v", err)
+		}
+	}
+
+	// resp := sheetsService.Spreadsheets.Get(sheetID)
+	// var ss *sheets.Spreadsheet
+	// ss, _ = resp.Do()
+
+	// _ = ss
+
+	ctx := context.Background()
+	// How the input data should be interpreted.
+	valueInputOption := "" // TODO: Update placeholder value.
+	// The new values to apply to the spreadsheet.
+	data := []*sheets.ValueRange{} // TODO: Update placeholder value.
+
+	rb := &sheets.BatchUpdateValuesRequest{
+		ValueInputOption: valueInputOption,
+		Data:             data,
+
+		// TODO: Add desired fields of the request body.
+	}
+
+	resp, err := sheetsService.Spreadsheets.Values.BatchUpdate(sheetID, rb).Context(ctx).Do()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// TODO: Change code below to process the `resp` object:
+	fmt.Printf("%#v\n", resp)
+
+	// for _, googleSheet := range ss.Sheets {
+	// 	key, err := getTimeFromTitleSheet(googleSheet.Properties.Title)
+	// 	if err == nil {
+	// 		(&mapSheet).Insert(key, googleSheet)
+	// 		// pointMapSheet.Insert(key, googleSheet)
+	// 	}
+	// }
+
+	// // resp_sheets := resp.Get("sheets")
+	// // fmt.Printf("%#v\n", resp_sheets)
+	// // if err != nil {
+	// // 	log.Fatal(err)
+	// // }
+
+	// return mapSheet
+}
+
+// //CreateGoogleSheet Создаёт новый гугл документ со считанными данными
+// func CreateGoogleSheet(readerReport []TypeReport) {
+
+// 	// spreadsheet := service.spreadsheets().create(body: {
+// 	// 	'properties': {'title': 'Сие есть название документа', 'locale': 'ru_RU'},
+// 	// 	'sheets': [{'properties': {'sheetType': 'GRID',
+// 	// 							   'sheetId': 0,
+// 	// 							   'title': 'Сие есть название листа',
+// 	// 							   'gridProperties': {'rowCount': 8, 'columnCount': 5}}}]
+// 	// }).execute()
+
+// 	// _ = spreadsheet
+// 	//Прочитать гугл документ
+
+// 	// Spreadsheet spreadsheet := Spreadsheet()
+// 	//     .setProperties(new SpreadsheetProperties()
+// 	//             .setTitle(title));
+
+// 	sheetsService, err := getGoogleSheetSrv()
+// 	if err != nil {
+// 		if err != nil {
+// 			log.Fatalf("Unable to retrieve Sheets client: %v", err)
+// 		}
+// 	}
+
+// 	// _ = srv
+// 	// spreadsheet := {
+// 	// 	'properties': {
+// 	// 		'title': title
+// 	// 	}
+// 	// }
+// 	rb := &sheets.Spreadsheet{
+// 		Properties: &sheets.SpreadsheetProperties{
+// 			Title:  "Что-то новое",
+// 			Locale: "ru_RU",
+// 		},
+// 	}
+
+// 	ctx := context.Background()
+// 	resp, err := sheetsService.Spreadsheets.Create(rb).Context(ctx).Do()
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	resp.SpreadsheetId.
+// 		// TODO: Change code below to process the `resp` object:
+// 		fmt.Printf("%#v\n", resp)
+// 	// spreadsheet = srv.spreadsheets().new()create(body=spreadsheet,
+// 	//  									fields='spreadsheetId').execute()
+// 	// print('Spreadsheet ID: {0}'.format(spreadsheet.get('spreadsheetId')))
+// }
+
 // WriteDataToGoogleSheet - функция пишет подоготовленные данные из массива TypeReport в гугл документ
 func WriteDataToGoogleSheet(readerReport []TypeReport) {
 	//Прежде чем записать данные, надо найти, где они находятся

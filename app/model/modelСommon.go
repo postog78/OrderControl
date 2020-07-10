@@ -14,11 +14,14 @@ import (
 
 //TypeReport - структура, содержащая основные данные по ответу нефтебазы по отгрузке
 type TypeReport struct {
-	NumOrder int
-	Weight   int //кг
-	Date     time.Time
-	Volume   int
-	Comment  string
+	NumOrder  int
+	Weight    int //кг
+	Date      time.Time
+	Volume    int
+	Comment   string
+	BasisName string
+	SheetName string
+	Row       int
 }
 
 type dataToSearchInGoogleSheets struct {
@@ -29,7 +32,16 @@ type dataToSearchInGoogleSheets struct {
 var spreadsheetID string = "183IDyrxg5PczVLewXMronbduZy50ukDiqNUGgnloqQQ"
 
 func (t TypeReport) String() string {
-	return fmt.Sprintf("NumOrder: %v; Weight: %v; Volume: %v Date: %v", t.NumOrder, t.Weight, t.Volume, t.Date)
+	return fmt.Sprintf("Basis: %s; Sheet: %s; Row: %d, NumOrder: %v; Weight: %v; Volume: %v Date: %v, Comment: %s",
+		t.BasisName,
+		t.SheetName,
+		t.Row,
+		t.NumOrder,
+		t.Weight,
+		t.Volume,
+		t.Date,
+		t.Comment,
+	)
 }
 
 // //TypeConnector структура, содержащая путь к папке и функцию, которую будут

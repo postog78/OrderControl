@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"path"
+	"regexp"
+	"strconv"
 	"time"
 
 	"github.com/tealeg/xlsx"
@@ -59,15 +61,15 @@ func (basis *OkaCenter) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 		listReport := make([]model.TypeReport, 0, 20)
 
 		sheetRows := currentSheet.MaxRow
-		for i := 5; i < sheetRows; i++ {
+		for i := 1; i < sheetRows; i++ {
 			proposalComment, err := currentSheet.Cell(i, 12)
 			// proposalNum, err := sheet.Cell(i, 9)
 			if err != nil {
 				log.Fatal(err)
 			}
-			if proposalComment == nil || proposalComment.Value == "" {
-				continue
-			}
+			// if proposalComment == nil || proposalComment.Value == "" {
+			// 	continue
+			// }
 
 			proposalDate, err := currentSheet.Cell(i, 0)
 			if err != nil {
@@ -91,20 +93,27 @@ func (basis *OkaCenter) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 			}
 			weightTone, _ := proposalWeight.Float()
 			weight := int(weightTone * 1000)
-			date, _ := proposalDate.GetTime(proposalDate.Row.Sheet.File.Date1904)
-			//date, _ := proposalDate.GetTime(false)
+			date, _ := getDate(proposalDate.String())
+			dateInPeriod := date.Equal(dateBegin) || date.Equal(dateEnd) || (date.After(dateBegin) && date.Before(dateEnd))
+			if !dateInPeriod {
+				continue
+			}
 			volume, _ := proposalVolume.Int()
-			
+
 			var elem model.TypeReport
 
 			elem = model.TypeReport{
-				NumOrder: numOrder,
-				Weight:   weight,
-				Date:     date,
-				Volume:   volume,
+				NumOrder:  numOrder,
+				Weight:    weight,
+				Date:      date,
+				Volume:    volume,
+				Comment:   comment,
+				BasisName: basis.GetName(),
+				SheetName: currentSheet.Name,
+				Row:       i+1,
 			}
 			listReport = append(listReport, elem)
-			fmt.Println(basis.GetName(), elem) // Print values in columns B and D
+			fmt.Println(elem) // Print values in columns B and D
 		}
 		for _, elem := range listReport {
 			fullListReport = append(fullListReport, elem)
@@ -138,5 +147,22 @@ func (basis *OkaCenter) GetName() string {
 }
 
 func getNumFromComment(comment string) (int, error) {
-	return 1, nil
+	//Вторая попытка - найти просто строку с "Активно" без указания логина
+	re := regexp.MustCompile(fmt.Sprintf(`(?is)^\s*(\d+)`))
+	allFoundStrings := re.FindAllStringSubmatch(comment, -1)
+	foundMatches := len(allFoundStrings)
+	if foundMatches == 1 {
+		numString := allFoundStrings[0][1]
+		numInt, err := strconv.Atoi(numString)
+		if err != nil {
+			return -1, err
+		}
+		return numInt, nil
+	}
+	return -1, errors.New("Не найден номер заказа по шаблону Номер заказа, потом произвольная строка")
+}
+
+func getDate(str string) (time.Time, error) {
+	//Получаем дату формата dd.mm.yyyy
+	return time.Parse(`02.01.2006`, str)
 }

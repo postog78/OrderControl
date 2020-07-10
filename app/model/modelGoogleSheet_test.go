@@ -11,10 +11,10 @@ func Test_getTimeFromTitleSheet(t *testing.T) {
 		title string
 	}
 	tests := []struct {
-		name         string
-		args         args
-		wantRetTime  time.Time
-		wantErr      bool
+		name        string
+		args        args
+		wantRetTime time.Time
+		wantErr     bool
 	}{
 		{"Норма 1. Продажа Декабрь 2019 (РЕГИОНЫ)", args{"Продажа Декабрь 2019 (РЕГИОНЫ)"}, time.Date(2019, time.December, 1, 0, 0, 0, 0, time.UTC), false},
 		{"Норма 2, Продажа Декабрь 2019 (остальные)", args{"Продажа Декабрь 2019 (остальные)"}, time.Date(2019, time.December, 1, 0, 0, 0, 0, time.UTC), false},
@@ -32,8 +32,8 @@ func Test_getTimeFromTitleSheet(t *testing.T) {
 				t.Errorf("getTimeFromTitleSheet() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if !reflect.DeepEqual(gotRet_time, tt.wantRetTime) {
-				t.Errorf("getTimeFromTitleSheet() = %v, want %v", gotRet_time, tt.wantRet_time)
+			if !reflect.DeepEqual(gotRetTime, tt.wantRetTime) {
+				t.Errorf("getTimeFromTitleSheet() = %v, want %v", gotRetTime, tt.wantRetTime)
 			}
 		})
 	}
