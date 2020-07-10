@@ -38,16 +38,37 @@ func UpdateGoogleSheetReport(readerReport []TypeReport) {
 
 	ctx := context.Background()
 	// How the input data should be interpreted.
-	valueInputOption := "" // TODO: Update placeholder value.
+	valueInputOption := "USER_ENTERED" // TODO: Update placeholder value.
 	// The new values to apply to the spreadsheet.
-	data := []*sheets.ValueRange{} // TODO: Update placeholder value.
+	rangeData := "sheet1!A1:B3"
+	values := [][]interface{}{{"sample_A1", "sample_B1"}, {"sample_A2", "sample_B2"}, {"sample_A3", "sample_A3"}}
+
+	//data := []*sheets.ValueRange{} // TODO: Update placeholder value.
 
 	rb := &sheets.BatchUpdateValuesRequest{
 		ValueInputOption: valueInputOption,
-		Data:             data,
+		//	Data:             data,
 
 		// TODO: Add desired fields of the request body.
 	}
+
+	dataPrepared := dataPrepare(readerReport)
+	rb.Data = append(rb.Data, &sheets.ValueRange{
+		Range:  rangeData,
+		Values: values,
+	})
+
+	rangeData = "Лист1!A1:B3"
+	rb.Data = append(rb.Data, &sheets.ValueRange{
+		Range:  rangeData,
+		Values: values,
+	})
+
+	// _, err = sheetsService.Spreadsheets.Values.BatchUpdate(spreadsheetId, rb).Context(ctx).Do()
+	// if err != nil {
+	//     log.Fatal(err)
+	// }
+	// fmt.Println("Done.")
 
 	resp, err := sheetsService.Spreadsheets.Values.BatchUpdate(sheetID, rb).Context(ctx).Do()
 	if err != nil {
