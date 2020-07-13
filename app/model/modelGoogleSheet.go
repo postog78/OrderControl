@@ -40,8 +40,8 @@ func UpdateGoogleSheetReport(readerReport []TypeReport) {
 	// How the input data should be interpreted.
 	valueInputOption := "USER_ENTERED" // TODO: Update placeholder value.
 	// The new values to apply to the spreadsheet.
-	rangeData := "sheet1!A1:B3"
-	values := [][]interface{}{{"sample_A1", "sample_B1"}, {"sample_A2", "sample_B2"}, {"sample_A3", "sample_A3"}}
+	//	rangeData := "sheet1!A1:B3"
+	//	values := [][]interface{}{{"sample_A1", "sample_B1"}, {"sample_A2", "sample_B2"}, {"sample_A3", "sample_A3"}}
 
 	//data := []*sheets.ValueRange{} // TODO: Update placeholder value.
 
@@ -52,17 +52,20 @@ func UpdateGoogleSheetReport(readerReport []TypeReport) {
 		// TODO: Add desired fields of the request body.
 	}
 
-	dataPrepared := dataPrepare(readerReport)
-	rb.Data = append(rb.Data, &sheets.ValueRange{
-		Range:  rangeData,
-		Values: values,
-	})
+	preparedData := Prepare(readerReport)
+	for _, prep := range preparedData {
 
-	rangeData = "Лист1!A1:B3"
-	rb.Data = append(rb.Data, &sheets.ValueRange{
-		Range:  rangeData,
-		Values: values,
-	})
+		rb.Data = append(rb.Data, &sheets.ValueRange{
+			Range:  prep.Range,
+			Values: prep.Table,
+		})
+	}
+
+	// rangeData = "Лист1!A1:B3"
+	// rb.Data = append(rb.Data, &sheets.ValueRange{
+	// 	Range:  rangeData,
+	// 	Values: values,
+	// })
 
 	// _, err = sheetsService.Spreadsheets.Values.BatchUpdate(spreadsheetId, rb).Context(ctx).Do()
 	// if err != nil {
