@@ -1,0 +1,323 @@
+package googlewrapper
+
+import (
+	"context"
+	"io/ioutil"
+	"log"
+	"time"
+
+	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/google"
+	"google.golang.org/api/sheets/v4"
+)
+
+type GoogleSheets struct {
+	SheetsService *sheets.Service
+	// SpreadsheetID    string
+	clientSecretFile string
+	Ctx              context.Context
+}
+
+const ASCIISymbolA = 65
+
+type PreparedDateToAppendIntoSpreadSheet struct {
+	SheetName string
+	Range     string
+	Table     [][]interface{}
+}
+
+type mapGoogleSheetsByMonth struct {
+	mapSheets map[time.Time][]*sheets.Sheet
+}
+
+func (g *GoogleSheets) Init(clientSecretFile string) {
+	//diversityshipments-31d3872ee94b.json
+	g.clientSecretFile = clientSecretFile
+}
+
+func (g *GoogleSheets) Start() {
+	g.startGoogleSheetSrv()
+	// sheetsService, err := getGoogleSheetSrv()
+	// if err != nil {
+	// 	if err != nil {
+	// 		log.Fatalf("Unable to retrieve Sheets client: %v", err)
+	// 	}
+	// }
+	// g.sheetsService = sheetsService
+	// ctx = context.Background()
+}
+
+func (g *GoogleSheets) getSheetsList(spreadsheetID string, getTime func(string) (time.Time, error)) (lst []string) {
+
+	resp := g.SheetsService.Spreadsheets.Get(spreadsheetID)
+	var ss *sheets.Spreadsheet
+	ss, _ = resp.Do()
+
+	for _, googleSheet := range ss.Sheets {
+		lst = append(lst, googleSheet.Properties.Title)
+	}
+	return
+}
+
+func (g *GoogleSheets) InsertSheet(spreadSheetID, name string) {
+
+	// The spreadsheet to apply the updates to.
+	//spreadsheetId := "my-spreadsheet-id" // TODO: Update placeholder value.
+
+	// A list of updates to apply to the spreadsheet.
+	// Requests will be applied in the order they are specified.
+	// If any request is not valid, no requests will be applied.
+	//requests := []*sheets.Request{} // TODO: Update placeholder value.
+
+	req := sheets.Request{
+		AddSheet: &sheets.AddSheetRequest{
+			Properties: &sheets.SheetProperties{
+				Title: name,
+			},
+		},
+	}
+
+	rb := &sheets.BatchUpdateSpreadsheetRequest{
+		Requests: []*sheets.Request{&req},
+	}
+
+	_, err := g.SheetsService.Spreadsheets.BatchUpdate(spreadSheetID, rb).Context(g.Ctx).Do()
+	if err != nil {
+		log.Fatal(err)
+	}
+	// TODO: Change code below to process the `resp` object:
+	//fmt.Printf("%#v\n", resp)
+
+	// {
+	// 	requests": [
+	// 	  {
+	// 		"adSheet": {
+	// 		  "properties: {
+	// 			"title": "Deposis",
+	// 			"gridProperties": {
+	// 			  "rowCount": 20,
+	// 			  "columnCount": 2
+	// 			},
+	// 			"tbColor": {
+	// 			  "red": 1.0,
+	// 			  "green": 0.,
+	// 			  "blue": 0.4
+	// 			}
+	//
+	// 		}
+	//
+	// 	]
+	//
+}
+
+// func (g GoogleSheets) UpdateGoogleSheetReport(sheetID string, preparedData []PreparedDateToAppendIntoSpreadSheet) {
+// 	// var mapSheetsFromDate map[time.Time][]*sheets.Sheet
+// 	// var sheetID string = "1Z7KluzcrGpLu_TVyGUBicwt_mpc13FhGlfGluUXh-8"
+
+// // var mapSheet mapGoogleSheetsByMonth
+// 	// var pointMapSheet = &mapSheet
+
+// // sheetsService, err := getGoogleSheetSrv()
+// 	// if err != nil {
+// 	// 	if err != nil
+// 	// 		log.Fatalf("Unble to retrieve Sheets client: %v", err)
+// 	// 	}
+// 	// }
+
+// // resp := sheetsService.Spreadsheets.Get(sheetID)
+// 	// var ss *sheets.Spreadsheet
+// 	// ss, _ = resp.Do()
+
+// // _ = ss
+
+// //ctx := context.Background()
+// 	// How the input data should e interpreted.
+// 	valueInputOption := "USER_ENTERED" // TODO: pdate placeholder value.
+// 	// The new values to apply to the spreadsheet.
+// 	//	rangeData := "sheet1!A1:B3"
+// 	//	values := [][]interface{}{{sample_A1", "sample_B1"}, {"sample_A2", "sample_B2"}, {"sample_A3", "sample_A3"}}
+
+// //data := []*sheets.ValueRange{} // TODO: Update placeholder value.
+
+// 	rb := &sheets.BatchUpdateValuesRequest{
+// 		ValueInputOption: valueInputOption,
+// 		//	Data:             data,
+
+// 	// TODO: Add desired fields of the request body.
+// 	}
+
+// // preparedData := Prepare(readerReport)
+// 	for _, prep := range preparedData {
+
+// 	rb.Data = append(rb.Data, &sheets.ValueRange{
+// 			Range:  prep.Range,
+// 			Values: prep.Table,
+// 		})
+// 	}
+
+// // rangeData = "Лист1!A1:B3"
+// 	// rb.Data = append(rb.Data,&sheets.ValueRange{
+// 	// 	Range:  rangeData,
+// 	// 	Values: values,
+// 	// })
+
+// // _, err = sheetsService.Spreadsheets.Values.BatchUpdate(spreadsheetId, rb).Context(ctx).Do()
+// 	// if err != nil {
+// 	//     log.Fatal(er)
+// 	// }
+// 	// ft.Println("Done.")
+
+// resp, err := g.SheetsService.Spreadsheets.Values.BatchUpdate(sheetID, rb).Context(g.Ctx).Do()
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// // TODO: Change code below to process the `resp` object:
+// 	fmt.Printf("%#v\n", resp)
+
+// // for _, googleSheet := range ss.Sheets {
+// 	// 	key, err := getTimeFromTitleSheet(googeSheet.Properties.Title)
+// 	// 	if err == nil {
+// 	// 		(&mapSheet).Inert(key, googleSheet)
+// 	// 		// pointMapSheet.Insert(key, googleSeet)
+// 	// 	}
+// 	// }
+
+// // // resp_sheets := resp.Get("sheets")
+// 	// // fmt.Printf("%#v\n", resp_sheets)
+// 	// // if err != nil {
+// 	// // 	log.Fatal(err)
+// 	// // }
+
+// // return mapSheet
+// }
+
+func (g *GoogleSheets) startGoogleSheetSrv() {
+
+	b, err := ioutil.ReadFile(g.clientSecretFile)
+
+	if err != nil {
+		log.Fatalf("Unble to read client secret file: %v", err)
+	}
+
+	// If modifying these scopes, delete your previously saved token.json.
+	// config, err := google.ConfigFromJSON(b, "https://www.googleapis.comauth/spreadsheets.readonly")
+	g.Ctx = context.Background()
+	// creds, err := google.CredntialsFromJSON(ctx, b, "https://www.googleapis.com/auth/spreadsheets")
+	creds, err := google.CredentialsFromJSON(g.Ctx, b, "https://www.googleapis.com/auth/spreadsheets")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	client := oauth2.NewClient(g.Ctx, creds.TokenSource) //credentials. getClient(config)
+
+	srv, err := sheets.New(client)
+	if err != nil {
+		log.Fatalf("Unble to retrieve Sheets client: %v", err)
+	}
+
+	g.SheetsService = srv
+}
+
+func getMonthBefore(t time.Time) time.Time {
+	return time.Date(t.Year(), t.Month()-1, 1, 0, 0, 0, 0, time.UTC)
+}
+
+func (m mapGoogleSheetsByMonth) getSheetsForDateWithMonthBefore(date time.Time) []*sheets.Sheet {
+	sheetsOfDate := m.getSheetsOfDate(date)
+	sheetsOfDateBefore := m.getSheetsForDateWithMonthBefore(date)
+	for _, oneSheet := range sheetsOfDateBefore {
+		sheetsOfDate = append(sheetsOfDate, oneSheet)
+	}
+	return sheetsOfDate
+}
+
+func (m mapGoogleSheetsByMonth) getSheetsOfDate(t time.Time) []*sheets.Sheet {
+	firstday := time.Date(t.Year(), t.Month(), 1, 0, 0, 0, 0, time.UTC)
+	// fmt.Println("Извлечение", firstday)
+	sheets, _ := m.mapSheets[firstday]
+	return sheets
+}
+
+// / func (g *GoogleSheets) getSheetsList(sheetsService *sheets.Service, getTime func(string) (time.Time, error)) mapGoogleSheetsByMonth {
+// // 	// True if grid data should be returned.
+// // 	// This parameter is ignored if a field ask was set in the request.
+// // 	// includeGridData := false // TODO: Update placeholder value.
+// // 	// ctx := context.Background()
+
+// / 	// The ranges to retrieve from the spreadsheet.
+// // 	// ranges := []string{} // TODO: Update placehoder value.
+
+// / 	//resp, err := sheetsService.Spreadsheets.Get(spreadsheetId).Ranges(ranges...).IncludeGridData(includeGridData).Context(ctx).Do()
+// // 	resp := sheetsService.Spreadsheets.Get(g.spreadsheetID)
+// // 	var ss *sheets.Spreadsheet
+// // 	ss, _ = resp.Do()
+// // 	var mapSheet mapGogleSheetsByMonth
+// // 	// var pointMapSheet = &mapSheet
+
+// / 	for _, googleSheet := range ss.Sheets {
+// // 		key, err := getTime(googleSheet.Properies.Title)
+// // 		if err == nil {
+// // 			(&mapSheet).Inert(key, googleSheet)
+// // 			// pointMapSheet.Insert(key, googleSeet)
+// // 		}
+// // 	}
+// // 	/ // resp_sheets := resp.Get("sheets")
+// // 	// // fmt.Printf("%#v\n", resp_sheets)
+// // 	// // if err != nil {
+// // 	// // 	log.Fatal(err)
+// // 	// // }
+
+// / 	return mapSheet
+// 	// fmt.Printf("#v\n", len(mapSheet.mapSheets))
+// 	// fmt.Printf("%#v\n", mapSheet)
+
+// 	// Prints the names and majors of students in a sample spreadsheet:
+// 	// https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUqptlbs74OgvE2upms/edit
+// 	// spreadsheetId := "1_EokmBJWtNKYMbQZEeuTrzk7fwLy5z1H-IbzR1v2q14"
+// 	// spreadsheetId := "183IDyrxg5PczVLewXMronbduZy50ukDiqNUGgnloqQQ"
+// 	// readRange := "МОСГОРТРАНС!A1:E5"
+// 	// resp, err := srv.Spreadsheets.Vaues.Get(spreadsheetId, readRange).Do()
+// 	// if err != nil {
+// 	// 	log.Fatalf("Unble to retrieve data from sheet: %v", err)
+// 	// }
+
+// 	// if len(resp.Values) == 0 {
+// 	// 	fmt.Println("No data foun.")
+// 	// } else {
+// 	// 	fmt.Pritln("Name, Major:")
+// 	// 	for _, row := range resp.Vaues {
+// 	// 		// Print columns A and E, which orrespond to indices 0 and 4.
+// 	// 		fmt.Printf("%s\n", row[0])
+// 	// 	}
+// 	// }
+
+// 	// writeRange := "A1"
+
+//	// var vr sheets.ValueRange
+
+// 	// myval := []interface{}{"One", "Two", "Three"}
+// 	// vr.Values = append(vr.Values, myval)
+
+// 	// _, err = srv.Spreadsheets.Values.Update(spreadsheetId, writeRange, &vr).ValueInputOption("RAW").Do()
+// 	// if err != nil {
+// 	// 	log.Fatalf("Unble to retrieve data from sheet. %v", err)
+// 	// }
+// }
+
+////Insert Перебираем список считанных из эксель данных и определяем, на каких листах они могут лежать.
+// func (t *mapGoogleSheetsByMonth) Insert(month time.Time, gs *sheets.Sheet) {
+// 	if t.mapSheets == nil {
+// 		t.mapSheets = make(map[time.Time]*sheets.Sheet)
+// 	}
+// 	googleSheets, ok := t.mapSheets[month]
+// 	if ok {
+// 		googleheets = append(googleSheets, gs)
+// 	} else {
+// 		var gooleSheets = make([]*sheets.Sheet, 0, 5)
+// 		googleSheets = append(googleSheets, gs)
+// 		// fmt.Println("Помещение", month)
+
+// 	}
+// 	t.mapSheets[month] = googleSheets
+// }

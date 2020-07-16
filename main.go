@@ -33,7 +33,7 @@ func main() {
 		}
 	}
 
-	excelconnector.CreateGoogleSheet(listConnector)
+	excelconnector.UpdateGoogleSheetCollectedInformation(listConnector)
 	//excelconnector.WriteDataToGooleSheetFromReaders(listConnector)
 	// li{excelconnector.GetDataFromExcelFileAeroFuels()}
 

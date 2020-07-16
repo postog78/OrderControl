@@ -39,24 +39,24 @@ func Test_getTimeFromTitleSheet(t *testing.T) {
 	}
 }
 
-func Test_getMonthBefore(t *testing.T) {
-	type args struct {
-		t time.Time
-	}
-	tests := []struct {
-		name string
-		args args
-		want time.Time
-	}{
-		{"Норма 1. 01/01/2019", args{time.Date(2019, time.January, 1, 0, 0, 0, 0, time.UTC)}, time.Date(2018, time.December, 1, 0, 0, 0, 0, time.UTC)},
-		{"Норма 2. 15/01/2019", args{time.Date(2019, time.January, 15, 0, 0, 0, 0, time.UTC)}, time.Date(2018, time.December, 1, 0, 0, 0, 0, time.UTC)},
-		{"Норма 1. 07/06/2019", args{time.Date(2019, time.June, 07, 0, 0, 0, 0, time.UTC)}, time.Date(2019, time.May, 1, 0, 0, 0, 0, time.UTC)},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := getMonthBefore(tt.args.t); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("getMonthBefore() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
+// func Test_getMonthBefore(t *testing.T) {
+// 	type args struct {
+// 		t time.Time
+// 	}
+// 	tests := []struct {
+// 		name string
+// 		args args
+// 		want time.Time
+// 	}{
+// 		{"Норма 1. 01/01/2019", args{time.Date(2019, time.January, 1, 0, 0, 0, 0, time.UTC)}, time.Date(2018, time.December, 1, 0, 0, 0, 0, time.UTC)},
+// 		{"Норма 2. 15/01/2019", args{time.Date(2019, time.January, 15, 0, 0, 0, 0, time.UTC)}, time.Date(2018, time.December, 1, 0, 0, 0, 0, time.UTC)},
+// 		{"Норма 1. 07/06/2019", args{time.Date(2019, time.June, 07, 0, 0, 0, 0, time.UTC)}, time.Date(2019, time.May, 1, 0, 0, 0, 0, time.UTC)},
+// 	}
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			if got := getMonthBefore(tt.args.t); !reflect.DeepEqual(got, tt.want) {
+// 				t.Errorf("getMonthBefore() = %v, want %v", got, tt.want)
+// 			}
+// 		})
+// 	}
+// }
