@@ -22,6 +22,7 @@ type TypeReport struct {
 	BasisName string
 	SheetName string
 	Row       int
+	FileName string
 }
 
 type dataToSearchInGoogleSheets struct {

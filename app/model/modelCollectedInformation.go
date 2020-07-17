@@ -55,12 +55,12 @@ func (ci *CollectedInformation) Go() {
 		})
 	}
 
-	resp, err := ci.gw.SheetsService.Spreadsheets.Values.BatchUpdate(ci.sheetID, rb).Context(ci.gw.Ctx).Do()
+	_, err := ci.gw.SheetsService.Spreadsheets.Values.BatchUpdate(ci.sheetID, rb).Context(ci.gw.Ctx).Do()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("%#v\n", resp)
+	//fmt.Printf("%#v\n", resp)
 }
 
 func dataPrepare(readerReport []TypeReport) map[time.Time][][]interface{} {
@@ -73,13 +73,29 @@ func dataPrepare(readerReport []TypeReport) map[time.Time][][]interface{} {
 	// 	{"sample_A3", "sample_A3"}
 	// }
 	mapSheets := make(map[time.Time][][]interface{})
+	//Title
+	var title []interface{} = make([]interface{}, 0, 1)
+	title = append(title, "Базис", "Дата заявки", "Номер заявки", "Объем, Литры", "Вес, кг", "Комментарий", "Файл", "Лист", "Номер строки")
+
+	//Устанавливаем заголовки на все страницы. Если страницы нет, значит нет и заголовка
 	for _, rep := range readerReport {
-		var row []interface{} = make([]interface{}, 0, 1)
-		row = append(row, rep.BasisName, rep.Date, rep.NumOrder, rep.Volume, rep.Weight, rep.Comment, rep.Row)
 		values := mapSheets[rep.Date]
 		if values == nil {
 			values = make([][]interface{}, 0)
+			values = append(values, title)
+			mapSheets[rep.Date] = values
 		}
+	}
+
+	//Теперь заполняем данными
+	for _, rep := range readerReport {
+		values := mapSheets[rep.Date]
+		// if values == nil {
+		// 	values = make([][]interface{}, 0)
+		// }
+
+		var row []interface{} = make([]interface{}, 0, 1)
+		row = append(row, rep.BasisName, rep.Date.Format("02.01.2006"), rep.NumOrder, rep.Volume, rep.Weight, rep.Comment, rep.FileName, rep.SheetName, rep.Row)
 		values = append(values, row)
 		mapSheets[rep.Date] = values
 	}

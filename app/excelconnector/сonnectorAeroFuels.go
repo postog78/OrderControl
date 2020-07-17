@@ -119,9 +119,10 @@ func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 					SheetName: currentSheet.Name,
 					Row:       i + 1,
 					Comment:   proposalComment.String(),
+					FileName:  excelFileName,
 				}
 				listReport = append(listReport, elem)
-				fmt.Println(elem) // Print values in columns B and D
+				//fmt.Println(elem) // Print values in columns B and D
 			}
 			for _, elem := range listReport {
 				fullListReport = append(fullListReport, elem)

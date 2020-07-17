@@ -321,3 +321,7 @@ func (m mapGoogleSheetsByMonth) getSheetsOfDate(t time.Time) []*sheets.Sheet {
 // 	}
 // 	t.mapSheets[month] = googleSheets
 // }
+
+func (g *GoogleSheets) MakeFilter(spreadSheetID string) {
+	
+}
