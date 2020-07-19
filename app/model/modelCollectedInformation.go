@@ -24,7 +24,8 @@ func (ci *CollectedInformation) Init(excelReport []TypeReport) {
 }
 
 func (ci *CollectedInformation) Go() {
-	arrayPrepared := ci.Prepare()
+	// arrayPrepared := ci.Prepare()
+	arrayPrepared := ci.PrepareForOneSheet()
 
 	// How the input data should be interpreted.
 	valueInputOption := "USER_ENTERED" // TODO: Update placeholder value.
@@ -60,10 +61,13 @@ func (ci *CollectedInformation) Go() {
 		log.Fatal(err)
 	}
 
+	//Сделаем фильтр
+	//ci.gw.MakeFilter(ci.sheetID, "Фильтр на всё")
+
 	//fmt.Printf("%#v\n", resp)
 }
 
-func dataPrepare(readerReport []TypeReport) map[time.Time][][]interface{} {
+func dataPrepareForManySheet(readerReport []TypeReport) map[time.Time][][]interface{} {
 	//rangeData := "sheet1!A1:B3"
 	// gvalues := [][]interface{}{{"sample_A1", "sample_B1"}, {"sample_A2", "sample_B2"}, {"sample_A3", "sample_A3"}}
 	// var values  [][]interface{}
@@ -103,14 +107,53 @@ func dataPrepare(readerReport []TypeReport) map[time.Time][][]interface{} {
 	return mapSheets
 }
 
+func dataPrepareForOneSheet(readerReport []TypeReport) (values [][]interface{}, dateBegin, dateEnd time.Time) {
+	//Title
+	var title []interface{} = make([]interface{}, 0, 1)
+	title = append(title, "Базис", "Дата заявки", "Номер заявки", "Объем, Литры", "Вес, кг", "Комментарий", "Файл", "Лист", "Номер строки")
+	values = make([][]interface{}, 0)
+	values = append(values, title)
+
+	//Теперь заполняем данными
+	//var dateBegin, dateEnd time.Time
+	for _, rep := range readerReport {
+
+		if dateEnd.Before(rep.Date) {
+			dateEnd = rep.Date
+		}
+
+		if dateBegin.IsZero() || dateBegin.After(rep.Date) {
+			dateBegin = rep.Date
+		}
+
+		var row []interface{} = make([]interface{}, 0, 1)
+
+		row = append(row, rep.BasisName, rep.Date.Format("02.01.2006"), rep.NumOrder, rep.Volume, rep.Weight, rep.Comment, rep.FileName, rep.SheetName, rep.Row)
+		values = append(values, row)
+	}
+
+	// type inside struct {
+	// 	values    [][]interface{}
+	// 	dateBegin time.Time
+	// 	dateEnd   time.Time
+	// }
+
+	return values, dateBegin, dateEnd
+}
+
 func getSheetNameFromDate(t time.Time) string {
 	//fmt.Println(fmt.Sprintf("%d", int64(time.Now().Unix())))
 	return t.Format("02.01.2006") + " (" + fmt.Sprintf("%d", int64(time.Now().Unix())) + ")"
 }
 
+func getSheetNameFromDateBeginEnd(t1, t2 time.Time) string {
+	//fmt.Println(fmt.Sprintf("%d", int64(time.Now().Unix())))
+	return t1.Format("02.01.2006") + " - " + t2.Format("02.01.2006") + " (" + fmt.Sprintf("%d", int64(time.Now().Unix())) + ")"
+}
+
 //Prepare возвращает подготовленный массив для записи данных в SpreadSheet гугл из считанных данных отчёта
-func (ci *CollectedInformation) Prepare() (arrayPrepared []googlewraper.PreparedDateToAppendIntoSpreadSheet) {
-	mapSheets := dataPrepare(ci.excelReport)
+func (ci *CollectedInformation) PrepareForManySheets() (arrayPrepared []googlewraper.PreparedDateToAppendIntoSpreadSheet) {
+	mapSheets := dataPrepareForManySheet(ci.excelReport)
 	count := len(mapSheets)
 	arrayPrepared = make([]googlewraper.PreparedDateToAppendIntoSpreadSheet, count)
 	i := 0
@@ -122,5 +165,18 @@ func (ci *CollectedInformation) Prepare() (arrayPrepared []googlewraper.Prepared
 		arrayPrepared[i] = prep
 		i++
 	}
+	return arrayPrepared
+}
+
+//Prepare возвращает подготовленный массив для записи данных в SpreadSheet гугл из считанных данных отчёта
+func (ci *CollectedInformation) PrepareForOneSheet() (arrayPrepared []googlewraper.PreparedDateToAppendIntoSpreadSheet) {
+	values, dateBegin, dateEnd := dataPrepareForOneSheet(ci.excelReport)
+	arrayPrepared = make([]googlewraper.PreparedDateToAppendIntoSpreadSheet, 1, 1)
+	var prep googlewraper.PreparedDateToAppendIntoSpreadSheet
+	prep.Table = values
+	prep.SheetName = getSheetNameFromDateBeginEnd(dateBegin, dateEnd)
+	prep.Range = prep.SheetName + "!A1:" + string(googlewraper.ASCIISymbolA+len(values[0])-1) + fmt.Sprintf("%d", len(values))
+	arrayPrepared[0] = prep
+
 	return arrayPrepared
 }

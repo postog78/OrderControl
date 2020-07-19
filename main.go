@@ -36,7 +36,7 @@ func main() {
 		}
 	}
 
-	//excelconnector.UpdateGoogleSheetCollectedInformation(listConnector)
+	excelconnector.UpdateGoogleSheetCollectedInformation(listConnector)
 	//excelconnector.WriteDataToGooleSheetFromReaders(listConnector)
 	// li{excelconnector.GetDataFromExcelFileAeroFuels()}
 
@@ -47,7 +47,3 @@ func main() {
 	// 	return
 	// }
 }
-
-// Просто ключ AIzaSyBg2jgYgXgjlhqTJNK3iN3KVeNE9acf0vU
-// Идентификатор клиента 510713154079-5oan62fqccksj647mt12v025rdo3jle1.apps.googleusercontent.com
-// Секретный код клиента 7O2XOJbj8GGR3oXtVnlU5pH5
