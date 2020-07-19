@@ -10,14 +10,14 @@ import (
 )
 
 type CollectedInformation struct {
-	gw          *googlewraper.GoogleSheets
-	sheetID     string
-	excelReport []TypeReport
+	gw            *googlewraper.GoogleSheets
+	spreadSheetID string
+	excelReport   []TypeReport
 }
 
 func (ci *CollectedInformation) Init(excelReport []TypeReport) {
 	ci.excelReport = excelReport
-	ci.sheetID = "1Z7KluzcrGpLu_TVyGUBicwt_mpc1X3FhGlfGluUXh-8"
+	ci.spreadSheetID = "1Z7KluzcrGpLu_TVyGUBicwt_mpc1X3FhGlfGluUXh-8"
 	ci.gw = new(googlewraper.GoogleSheets)
 	ci.gw.Init("diversityshipments-31d3872ee94b.json")
 	ci.gw.Start()
@@ -36,8 +36,11 @@ func (ci *CollectedInformation) Go() {
 	//data := []*sheets.ValueRange{} // TODO: Update placeholder value.
 
 	//Добавляем страницы. Считаем, что страницы уникальные и таких в базе ещё нет
+	mapNewSheetID := make(map[string]int64)
 	for _, prep := range arrayPrepared {
-		ci.gw.InsertSheet(ci.sheetID, prep.SheetName)
+		newSheetID := genegateInt64()
+		mapNewSheetID[prep.SheetName] = newSheetID
+		ci.gw.InsertSheet(ci.spreadSheetID, prep.SheetName, newSheetID)
 	}
 
 	rb := &sheets.BatchUpdateValuesRequest{
@@ -56,15 +59,26 @@ func (ci *CollectedInformation) Go() {
 		})
 	}
 
-	_, err := ci.gw.SheetsService.Spreadsheets.Values.BatchUpdate(ci.sheetID, rb).Context(ci.gw.Ctx).Do()
+	_, err := ci.gw.SheetsService.Spreadsheets.Values.BatchUpdate(ci.spreadSheetID, rb).Context(ci.gw.Ctx).Do()
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	//resp.
 	//Сделаем фильтр
-	//ci.gw.MakeFilter(ci.sheetID, "Фильтр на всё")
+	gridRange := new(sheets.GridRange)
 
-	//fmt.Printf("%#v\n", resp)
+	// gridRange.SheetId = 0
+	gridRange.StartRowIndex = 0
+	gridRange.EndRowIndex = 5000
+	gridRange.StartColumnIndex = 0
+	gridRange.EndColumnIndex = 20
+
+	for _, sheetID := range mapNewSheetID {
+		gridRange.SheetId = sheetID
+		ci.gw.MakeFilter(ci.spreadSheetID, "Фильтр на всё", gridRange)
+	}
+
 }
 
 func dataPrepareForManySheet(readerReport []TypeReport) map[time.Time][][]interface{} {
@@ -179,4 +193,8 @@ func (ci *CollectedInformation) PrepareForOneSheet() (arrayPrepared []googlewrap
 	arrayPrepared[0] = prep
 
 	return arrayPrepared
+}
+
+func genegateInt64() int64 {
+	return int64(time.Now().Unix())
 }

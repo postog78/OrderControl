@@ -2,6 +2,7 @@ package googlewrapper
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"time"
@@ -11,6 +12,7 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
+//GoogleSheets структура описывающая работу в целом с гугл таблицами и хранящая инициализированный сервер
 type GoogleSheets struct {
 	SheetsService *sheets.Service
 	// SpreadsheetID    string
@@ -18,8 +20,10 @@ type GoogleSheets struct {
 	Ctx              context.Context
 }
 
+//ASCIISymbolA код символа А, чтобы определять для экселя
 const ASCIISymbolA = 65
 
+//PreparedDateToAppendIntoSpreadSheet Подготовленные данные для записи в гугл таблицы
 type PreparedDateToAppendIntoSpreadSheet struct {
 	SheetName string
 	Range     string
@@ -30,11 +34,13 @@ type mapGoogleSheetsByMonth struct {
 	mapSheets map[time.Time][]*sheets.Sheet
 }
 
+//Init инициализация внутренних переменных
 func (g *GoogleSheets) Init(clientSecretFile string) {
 	//diversityshipments-31d3872ee94b.json
 	g.clientSecretFile = clientSecretFile
 }
 
+//Start Запуск соединения с Гуглом
 func (g *GoogleSheets) Start() {
 	g.startGoogleSheetSrv()
 	// sheetsService, err := getGoogleSheetSrv()
@@ -59,7 +65,8 @@ func (g *GoogleSheets) getSheetsList(spreadsheetID string, getTime func(string) 
 	return
 }
 
-func (g *GoogleSheets) InsertSheet(spreadSheetID, name string) {
+//InsertSheet Вставляет страницу в гугл таблицу
+func (g *GoogleSheets) InsertSheet(spreadSheetID, name string, sheetID int64) {
 
 	// The spreadsheet to apply the updates to.
 	//spreadsheetId := "my-spreadsheet-id" // TODO: Update placeholder value.
@@ -72,7 +79,9 @@ func (g *GoogleSheets) InsertSheet(spreadSheetID, name string) {
 	req := sheets.Request{
 		AddSheet: &sheets.AddSheetRequest{
 			Properties: &sheets.SheetProperties{
-				Title: name,
+				Title:   name,
+				Index:   0,
+				SheetId: sheetID,
 			},
 		},
 	}
@@ -85,8 +94,8 @@ func (g *GoogleSheets) InsertSheet(spreadSheetID, name string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// TODO: Change code below to process the `resp` object:
-	//fmt.Printf("%#v\n", resp)
+
+	// fmt.Printf("%#v\n", resp)
 
 	// {
 	// 	requests": [
@@ -322,15 +331,9 @@ func (m mapGoogleSheetsByMonth) getSheetsOfDate(t time.Time) []*sheets.Sheet {
 // 	t.mapSheets[month] = googleSheets
 // }
 
-func (g *GoogleSheets) MakeFilter(spreadSheetID string, sheetID int64, title string, cellRange string) {
+//MakeFilter создаёт именованный фильтр для страницы
+func (g *GoogleSheets) MakeFilter(spreadSheetID string, title string, gridRange *sheets.GridRange) {
 	filterView := new(sheets.FilterView)
-	gridRange := new(sheets.GridRange)
-
-	gridRange.SheetId = sheetID
-	gridRange.StartRowIndex = 0
-	gridRange.EndRowIndex = 5000
-	gridRange.StartColumnIndex = 0
-	gridRange.EndColumnIndex = 20
 
 	filterView.Range = gridRange
 	req := sheets.Request{
@@ -345,10 +348,11 @@ func (g *GoogleSheets) MakeFilter(spreadSheetID string, sheetID int64, title str
 		Requests: []*sheets.Request{&req},
 	}
 
-	_, err := g.SheetsService.Spreadsheets.BatchUpdate(spreadSheetID, rb).Context(g.Ctx).Do()
+	resp, err := g.SheetsService.Spreadsheets.BatchUpdate(spreadSheetID, rb).Context(g.Ctx).Do()
 	if err != nil {
 		log.Fatal(err)
 	}
+	fmt.Printf("%#v\n", resp)
 }
 
 // service = self.service
