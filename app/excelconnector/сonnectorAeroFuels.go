@@ -13,9 +13,10 @@ import (
 
 // AeroFuels - структура, хранящая данные Аэрофьюэлза
 type AeroFuels struct {
-	Name       string
-	PathToDir  string
-	ListReport []model.TypeReport
+	Name             string
+	PathToDir        string
+	ListReport       []model.TypeReport
+	colTypeOfProduct int
 }
 
 // var excelFileName string = `C:\Users\Dell\Documents\Go\OrderControl\Files\Отчеты базисов об отгрузках\Базис 1\ИНТ_Остатки 2020.xlsx`
@@ -26,6 +27,7 @@ func (basis *AeroFuels) Init() {
 	// basis.PathToDir = "C:\\Users\\User\\go\\src\\OrderControl\\Файлы\\Отгрузки\\Аэрофьюэлз" //path.Join(pathToShipments, "Аэрофьюэл")
 	// basis.PathToDir = "C:/Users/User/go/src/OrderControl/Файлы/Отгрузки/Аэрофьюэлз"         //path.Join(pathToShipments, "Аэрофьюэл")
 	basis.PathToDir = path.Join(pathToShipments, basis.Name)
+	basis.colTypeOfProduct = 3
 }
 
 func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, error) {
@@ -87,6 +89,11 @@ func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 					log.Fatal(err)
 				}
 
+				proposalTypeOfProduct, err := currentSheet.Cell(i, basis.colTypeOfProduct)
+				if err != nil {
+					log.Fatal(err)
+				}
+
 				// proposalDate, err := currentSheet.Cell(i, 10)
 				// if err != nil {
 				// 	log.Fatal(err)
@@ -107,19 +114,21 @@ func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 				// date, _ := proposalDate.GetTime(proposalDate.Row.Sheet.File.Date1904)
 				date := dateOrder
 				volume, _ := proposalVolume.Int()
+				typeOfProduct := proposalTypeOfProduct.String()
 
 				var elem model.TypeReport
 
 				elem = model.TypeReport{
-					NumOrder:  numOrder,
-					Weight:    weight,
-					Date:      date,
-					Volume:    volume,
-					BasisName: basis.GetName(),
-					SheetName: currentSheet.Name,
-					Row:       i + 1,
-					Comment:   proposalComment.String(),
-					FileName:  excelFileName,
+					NumOrder:      numOrder,
+					Weight:        weight,
+					Date:          date,
+					Volume:        volume,
+					BasisName:     basis.GetName(),
+					SheetName:     currentSheet.Name,
+					Row:           i + 1,
+					Comment:       proposalComment.String(),
+					FileName:      excelFileName,
+					TypeOfProduct: typeOfProduct,
 				}
 				listReport = append(listReport, elem)
 				//fmt.Println(elem) // Print values in columns B and D

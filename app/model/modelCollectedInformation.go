@@ -93,7 +93,7 @@ func dataPrepareForManySheet(readerReport []TypeReport) map[time.Time][][]interf
 	mapSheets := make(map[time.Time][][]interface{})
 	//Title
 	var title []interface{} = make([]interface{}, 0, 1)
-	title = append(title, "Базис", "Дата заявки", "Номер заявки", "Объем, Литры", "Вес, кг", "Комментарий", "Файл", "Лист", "Номер строки")
+	title = append(title, "Базис", "Дата заявки", "Номер заявки", "Вид топлива", "Объем, Литры", "Вес, кг", "Комментарий", "Файл", "Лист", "Номер строки")
 
 	//Устанавливаем заголовки на все страницы. Если страницы нет, значит нет и заголовка
 	for _, rep := range readerReport {
@@ -113,7 +113,7 @@ func dataPrepareForManySheet(readerReport []TypeReport) map[time.Time][][]interf
 		// }
 
 		var row []interface{} = make([]interface{}, 0, 1)
-		row = append(row, rep.BasisName, rep.Date.Format("02.01.2006"), rep.NumOrder, rep.Volume, rep.Weight, rep.Comment, rep.FileName, rep.SheetName, rep.Row)
+		row = append(row, rep.BasisName, rep.Date.Format("02.01.2006"), rep.NumOrder, rep.TypeOfProduct, rep.Volume, rep.Weight, rep.Comment, rep.FileName, rep.SheetName, rep.Row)
 		values = append(values, row)
 		mapSheets[rep.Date] = values
 	}
@@ -124,7 +124,7 @@ func dataPrepareForManySheet(readerReport []TypeReport) map[time.Time][][]interf
 func dataPrepareForOneSheet(readerReport []TypeReport) (values [][]interface{}, dateBegin, dateEnd time.Time) {
 	//Title
 	var title []interface{} = make([]interface{}, 0, 1)
-	title = append(title, "Базис", "Дата заявки", "Номер заявки", "Объем, Литры", "Вес, кг", "Комментарий", "Файл", "Лист", "Номер строки")
+	title = append(title, "Базис", "Дата заявки", "Номер заявки", "Вид топлива", "Объем, Литры", "Вес, кг", "Комментарий", "Файл", "Лист", "Номер строки")
 	values = make([][]interface{}, 0)
 	values = append(values, title)
 
@@ -142,7 +142,7 @@ func dataPrepareForOneSheet(readerReport []TypeReport) (values [][]interface{}, 
 
 		var row []interface{} = make([]interface{}, 0, 1)
 
-		row = append(row, rep.BasisName, rep.Date.Format("02.01.2006"), rep.NumOrder, rep.Volume, rep.Weight, rep.Comment, rep.FileName, rep.SheetName, rep.Row)
+		row = append(row, rep.BasisName, rep.Date.Format("02.01.2006"), rep.NumOrder, rep.TypeOfProduct, rep.Volume, rep.Weight, rep.Comment, rep.FileName, rep.SheetName, rep.Row)
 		values = append(values, row)
 	}
 

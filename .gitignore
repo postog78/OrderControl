@@ -1,5 +1,6 @@
-Files/.~*.xlsx#
-Files/*.xlsx#
+*.xlsx
+*.xls
+*.xlsx#
 Files/*.xlsx
 Files/*.xls
 Files/Остатки/Остатки 1/СкладХранения на 22.04 по складам.xls

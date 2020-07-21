@@ -14,19 +14,16 @@ func main() {
 	// 		{"Аэрофьюэлз", excelconnector.GetDataFromExcelFileAeroFuels()}
 	// 	]
 	var listConnector []excelconnector.ConnectorExcelReader
-	var aeroFuels excelconnector.AeroFuels
-	var reader excelconnector.ConnectorExcelReader = &aeroFuels
-	listConnector = append(listConnector, reader)
-
-	var okaCenter excelconnector.OkaCenter
-	// var reader excelconnector.ConnectorExcelReader = &aeroFuels
-	listConnector = append(listConnector, &okaCenter)
-
-	// var reader excelconnector.ConnectorExcelReader = &aeroFuels
+	//var aeroFuels excelconnector.AeroFuels
+	//var reader excelconnector.ConnectorExcelReader = &aeroFuels
+	listConnector = append(listConnector, new(excelconnector.AeroFuels))
+	listConnector = append(listConnector, new(excelconnector.OkaCenter))
 	listConnector = append(listConnector, new(excelconnector.RezervA))
+	listConnector = append(listConnector, new(excelconnector.Istra))
+	listConnector = append(listConnector, new(excelconnector.IstraOpt))
 
 	var dateBegin time.Time = time.Date(2020, time.April, 20, 0, 0, 0, 0, time.UTC)
-	var dateEnd time.Time = time.Date(2020, time.April, 22, 0, 0, 0, 0, time.UTC)
+	var dateEnd time.Time = time.Date(2020, time.July, 22, 0, 0, 0, 0, time.UTC)
 
 	for _, reader := range listConnector {
 		reader.Init()

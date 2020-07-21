@@ -2,7 +2,6 @@ package googlewrapper
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"time"
@@ -348,11 +347,11 @@ func (g *GoogleSheets) MakeFilter(spreadSheetID string, title string, gridRange 
 		Requests: []*sheets.Request{&req},
 	}
 
-	resp, err := g.SheetsService.Spreadsheets.BatchUpdate(spreadSheetID, rb).Context(g.Ctx).Do()
+	_, err := g.SheetsService.Spreadsheets.BatchUpdate(spreadSheetID, rb).Context(g.Ctx).Do()
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%#v\n", resp)
+	// fmt.Printf("%#v\n", resp)
 }
 
 // service = self.service

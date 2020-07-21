@@ -18,6 +18,7 @@ type OkaCenter struct {
 	Name       string
 	PathToDir  string
 	ListReport []model.TypeReport
+	colTypeOfProduct int
 }
 
 // var excelFileName string = `C:\Users\Dell\Documents\Go\OrderControl\Files\Отчеты базисов об отгрузках\Базис 1\ИНТ_Остатки 2020.xlsx`
@@ -28,6 +29,7 @@ func (basis *OkaCenter) Init() {
 	// basis.PathToDir = "C:\\Users\\User\\go\\src\\OrderControl\\Файлы\\Отгрузки\\Аэрофьюэлз" //path.Join(pathToShipments, "Аэрофьюэл")
 	// basis.PathToDir = "C:/Users/User/go/src/OrderControl/Файлы/Отгрузки/Аэрофьюэлз"         //path.Join(pathToShipments, "Аэрофьюэл")
 	basis.PathToDir = path.Join(pathToShipments, "ОкаЦентр")
+	basis.colTypeOfProduct = 4
 }
 
 func (basis *OkaCenter) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, error) {
@@ -86,6 +88,11 @@ func (basis *OkaCenter) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 				log.Fatal(err)
 			}
 
+			proposalTypeOfProduct, err := currentSheet.Cell(i, basis.colTypeOfProduct)
+			if err != nil {
+				log.Fatal(err)
+			}
+
 			comment := proposalComment.String()
 			numOrder, err := getNumFromComment(comment)
 			if err != nil {
@@ -95,6 +102,7 @@ func (basis *OkaCenter) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 			weight := int(weightTone * 1000)
 			date, _ := getDate(proposalDate.String())
 			dateInPeriod := date.Equal(dateBegin) || date.Equal(dateEnd) || (date.After(dateBegin) && date.Before(dateEnd))
+			typeOfProduct := proposalTypeOfProduct.String()
 			if !dateInPeriod {
 				continue
 			}
@@ -112,6 +120,7 @@ func (basis *OkaCenter) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 				SheetName: currentSheet.Name,
 				Row:       i + 1,
 				FileName:  excelFileName,
+				TypeOfProduct: typeOfProduct,
 			}
 			listReport = append(listReport, elem)
 			// fmt.Println(elem) // Print values in columns B and D

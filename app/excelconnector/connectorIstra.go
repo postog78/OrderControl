@@ -6,40 +6,35 @@ import (
 	"fmt"
 	"log"
 	"path"
-	"strings"
 	"time"
 
 	"github.com/tealeg/xlsx"
 )
 
-//RezervA коннектор Резерв А
-type RezervA struct {
-	Name                               string
-	PathToDir                          string
-	ListReport                         []model.TypeReport
-	colComment, colVolume, colWeight   int
-	colDate                            int //Особенная колонка, одно значение на лист
-	rowDate                            int //Особенная строка, одно значение на лист
-	colSummary                         int //Колонка, где в первой колонке стоит "итого"
-	colTypeOfProduct, rowTypeOfProduct int
+//Istra коннектор Истры
+type Istra struct {
+	Name                             string
+	PathToDir                        string
+	ListReport                       []model.TypeReport
+	colComment, colVolume, colWeight int
+	colDate                          int //Особенная колонка, одно значение на лист
+	colTypeOfProduct                 int
 }
 
 // var excelFileName string = `C:\Users\Dell\Documents\Go\OrderControl\Files\Отчеты базисов об отгрузках\Базис 1\ИНТ_Остатки 2020.xlsx`
 
 //Init инициализация коннектора к экселю
-func (basis *RezervA) Init() {
-	basis.Name = "Резерв А"
-	basis.PathToDir = path.Join(pathToShipments, "РезервА")
-	basis.colComment = 5
-	basis.colVolume = 6
-	basis.colWeight = 9
-	basis.colDate = 0
-	basis.rowDate = 1
-	basis.colTypeOfProduct = 0
-	basis.rowTypeOfProduct = 0
+func (basis *Istra) Init() {
+	basis.Name = "Истра"
+	basis.PathToDir = path.Join(pathToShipments, "Истра")
+	basis.colComment = 8
+	basis.colVolume = 13
+	basis.colWeight = 12
+	basis.colDate = 1
+	basis.colTypeOfProduct = 10
 }
 
-func (basis *RezervA) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, error) {
+func (basis *Istra) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, error) {
 
 	basis.ListReport = nil
 	var fullListReport []model.TypeReport = make([]model.TypeReport, 0, 50)
@@ -70,25 +65,23 @@ func (basis *RezervA) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, er
 
 			listReport := make([]model.TypeReport, 0, 20)
 
-			//Общая дата на весь лист
-			proposalDate, err := currentSheet.Cell(basis.rowDate, basis.colDate)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			//Общее наименование продукта
-			proposalTypeOfProduct, err := currentSheet.Cell(basis.rowTypeOfProduct, basis.colTypeOfProduct)
-			if err != nil {
-				log.Fatal(err)
-			}
-
 			sheetRows := currentSheet.MaxRow
 			for i := 6; i < sheetRows; i++ {
 
+				proposalDate, err := currentSheet.Cell(i, basis.colDate)
+				if err != nil {
+					log.Fatal(err)
+				}
+				//Если это не дата, то значит это или пропущенная строка или это заголовок
+				date, err := basis.getDateFromString(proposalDate.String())
+				if err != nil {
+					continue
+				}
+
 				//Проверяем, что ещё не добрались до строки итого
-				proposalSummary, _ := currentSheet.Cell(i, basis.colSummary)
-				if strings.TrimSpace(strings.ToLower(proposalSummary.String())) == "итого" {
-					break
+				proposalTypeOfProduct, err := currentSheet.Cell(i, basis.colTypeOfProduct)
+				if err != nil {
+					log.Fatal(err)
 				}
 
 				proposalComment, err := currentSheet.Cell(i, basis.colComment)
@@ -112,11 +105,9 @@ func (basis *RezervA) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, er
 
 				comment := proposalComment.String()
 
-				weight, _ := proposalWeight.Int()
-				if weight <= 0 {
-					continue
-				}
-				date, _ := basis.getAbnormalDateFromString(proposalDate.String())
+				weightTone, _ := proposalWeight.Float()
+				weight := int(weightTone * 1000)
+
 				dateInPeriod := date.Equal(dateBegin) || date.Equal(dateEnd) || (date.After(dateBegin) && date.Before(dateEnd))
 				if !dateInPeriod {
 					continue
@@ -139,7 +130,7 @@ func (basis *RezervA) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, er
 					TypeOfProduct: typeOfProduct,
 				}
 				listReport = append(listReport, elem)
-				//fmt.Println(elem) // Print values in columns B and D
+				// fmt.Println(elem) // Print values in columns B and D
 			}
 			for _, elem := range listReport {
 				fullListReport = append(fullListReport, elem)
@@ -164,20 +155,16 @@ func (basis *RezervA) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, er
 }
 
 //GetData выдача списка прочитанных данных из эксель
-func (basis *RezervA) getAbnormalDateFromString(str string) (date time.Time, err error) {
-	words := strings.Split(str, " ")
-	if len(words) == 0 {
-		return date, nil
-	}
-	return time.Parse(`02,01,2006`, words[0])
+func (basis *Istra) getDateFromString(str string) (date time.Time, err error) {
+	return time.Parse(`02.01.2006`, str)
 }
 
 //GetData выдача списка прочитанных данных из эксель
-func (basis *RezervA) GetData() []model.TypeReport {
+func (basis *Istra) GetData() []model.TypeReport {
 	return basis.ListReport
 }
 
 //GetName выдача данных по имени коннектора
-func (basis *RezervA) GetName() string {
+func (basis *Istra) GetName() string {
 	return basis.Name
 }

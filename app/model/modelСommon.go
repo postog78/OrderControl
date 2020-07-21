@@ -14,15 +14,16 @@ import (
 
 //TypeReport - структура, содержащая основные данные по ответу нефтебазы по отгрузке
 type TypeReport struct {
-	NumOrder  int
-	Weight    int //кг
-	Date      time.Time
-	Volume    int
-	Comment   string
-	BasisName string
-	SheetName string
-	Row       int
-	FileName string
+	NumOrder      int
+	TypeOfProduct string
+	Weight        int //кг
+	Date          time.Time
+	Volume        int
+	Comment       string
+	BasisName     string
+	SheetName     string
+	Row           int
+	FileName      string
 }
 
 type dataToSearchInGoogleSheets struct {
@@ -33,11 +34,12 @@ type dataToSearchInGoogleSheets struct {
 var spreadsheetID string = "183IDyrxg5PczVLewXMronbduZy50ukDiqNUGgnloqQQ"
 
 func (t TypeReport) String() string {
-	return fmt.Sprintf("Basis: %s; Sheet: %s; Row: %d, NumOrder: %v; Weight: %v; Volume: %v Date: %v, Comment: %s",
+	return fmt.Sprintf("Basis: %s; Sheet: %s; Row: %d, NumOrder: %v; TypeOfProduct: %s, Weight: %v; Volume: %v Date: %v, Comment: %s",
 		t.BasisName,
 		t.SheetName,
 		t.Row,
 		t.NumOrder,
+		t.TypeOfProduct,
 		t.Weight,
 		t.Volume,
 		t.Date,
@@ -109,10 +111,7 @@ func RangeDate(start, end time.Time) (list []time.Time) {
 // 	Sheets []*sheets.Sheet
 // }
 
-
 type columnNum int
-
-
 
 type sheetSetting struct {
 	NumOrder columnNum //column
