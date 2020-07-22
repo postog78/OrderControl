@@ -21,6 +21,7 @@ func main() {
 	listConnector = append(listConnector, new(excelconnector.RezervA))
 	listConnector = append(listConnector, new(excelconnector.Istra))
 	listConnector = append(listConnector, new(excelconnector.IstraOpt))
+	listConnector = append(listConnector, new(excelconnector.WhitePillars))
 
 	var dateBegin time.Time = time.Date(2020, time.April, 20, 0, 0, 0, 0, time.UTC)
 	var dateEnd time.Time = time.Date(2020, time.July, 22, 0, 0, 0, 0, time.UTC)
