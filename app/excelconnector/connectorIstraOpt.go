@@ -6,7 +6,7 @@ import (
 
 //IstraOpt коннектор Истры опта
 type IstraOpt struct {
-	Istra
+	FlatTable
 }
 
 //Init инициализация коннектора к экселю
@@ -18,4 +18,5 @@ func (basis *IstraOpt) Init() {
 	basis.colWeight = 14
 	basis.colDate = 1
 	basis.colTypeOfProduct = 12
+	basis.weightInTone = true
 }
