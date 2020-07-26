@@ -20,13 +20,13 @@ import (
 // }
 
 //UpdateGoogleSheetCollectedInformation записываем данные в гугл файл
-func UpdateGoogleSheetCollectedInformation(listConnector []ConnectorExcelReader) {
+func UpdateGoogleSheetCollectedInformation(listConnector []ConnectorExcelReader) int64 {
 	readerReportFull := getFulllistReaderReport(listConnector)
 
 	var ci *model.CollectedInformation
 	ci = new(model.CollectedInformation)
 	ci.Init(readerReportFull)
-	ci.Go()
+	return ci.Go()
 }
 
 func getFulllistReaderReport(listConnector []ConnectorExcelReader) []model.TypeReport {

@@ -40,6 +40,9 @@ func (basis *FlatTable) Init() {
 
 func (basis *FlatTable) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, error) {
 
+	// fmt.Println(dateBegin)
+	// fmt.Println(dateEnd)
+
 	basis.ListReport = nil
 	var fullListReport []model.TypeReport = make([]model.TypeReport, 0, 50)
 

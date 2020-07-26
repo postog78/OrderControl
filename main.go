@@ -1,35 +1,32 @@
 package main
 
 import (
-	"OrderControl/app/excelconnector"
+	// "OrderControl/app/excelconnector"
+	controller "OrderControl/app/controller"
 	"log"
-	"time"
+	"net/http"
+	"os/exec"
+	"regexp"
+	"runtime"
+	// "time"
 )
 
 func main() {
 
-	//Нам известно о следующих форматах файлов
-	var listConnector []excelconnector.ConnectorExcelReader
-	listConnector = append(listConnector, new(excelconnector.AeroFuels))
-	listConnector = append(listConnector, new(excelconnector.OkaCenter))
-	listConnector = append(listConnector, new(excelconnector.RezervA))
-	listConnector = append(listConnector, new(excelconnector.Istra))
-	listConnector = append(listConnector, new(excelconnector.IstraOpt))
-	listConnector = append(listConnector, new(excelconnector.WhitePillars))
-	listConnector = append(listConnector, new(excelconnector.MainSpecialConstruction))
+	controller.CreateTemplates()
+	http.HandleFunc("/view/", makeHandler(viewHandler))
+	http.HandleFunc("/run/", makeHandler(runHandler))
+	http.HandleFunc("/result/", makeHandler(resultHandler))
+	// http.HandleFunc("/edit/", makeHandler(editHandler))
+	// http.HandleFunc("/save/", makeHandler(saveHandler))
+	// http.HandleFunc("/add/", makeHandler(addHandler))
+	// http.HandleFunc("/delete/", makeHandler(deleteHandler))
 
-	var dateBegin time.Time = time.Date(2020, time.April, 20, 0, 0, 0, 0, time.UTC)
-	var dateEnd time.Time = time.Date(2020, time.July, 22, 0, 0, 0, 0, time.UTC)
-
-	for _, reader := range listConnector {
-		reader.Init()
-		_, err := reader.Read(dateBegin, dateEnd)
-		if err != nil {
-			log.Fatalf("Не получилось прочитать файл %s. %v", reader.GetName(), err)
-		}
+	go open("http://localhost:8081/view/")
+	if err := http.ListenAndServe(":8081", nil); err != nil {
+		log.Fatal(err)
 	}
 
-	excelconnector.UpdateGoogleSheetCollectedInformation(listConnector)
 	//excelconnector.WriteDataToGooleSheetFromReaders(listConnector)
 	// li{excelconnector.GetDataFromExcelFileAeroFuels()}
 
@@ -39,4 +36,63 @@ func main() {
 	// if len(listReport) > 0 {
 	// 	return
 	// }
+}
+
+// open opens the specified URL in the default browser of the user.
+func open(url string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = "cmd"
+		args = []string{"/c", "start"}
+	case "darwin":
+		cmd = "open"
+	default: // "linux", "freebsd", "openbsd", "netbsd"
+		cmd = "xdg-open"
+	}
+	args = append(args, url)
+	return exec.Command(cmd, args...).Start()
+}
+
+var validPath = regexp.MustCompile(
+	"^/(view)/$|^/(run)/$|^/(result)/$")
+
+// "^/(view)/$|^/(run)/$|^/(edit)/$|^(/edit(/save|/add|/delete)?)/$")
+
+func viewHandler(w http.ResponseWriter, r *http.Request) {
+	p, err := controller.LoadViewPage() //Загрузка данных для генерации страницы
+	if err != nil {
+		//http.Redirect(w, r, "/edit/"+title, http.StatusFound)
+		return
+	}
+	controller.RenderTemplateView(w, p) //Генерация страницы
+}
+
+func resultHandler(w http.ResponseWriter, r *http.Request) {
+	a := `https://docs.google.com/spreadsheets/d/1Z7KluzcrGpLu_TVyGUBicwt_mpc1X3FhGlfGluUXh-8/edit` // + "/" + sheetID
+	controller.RenderTemplateResult(w, a)                                                           //Генерация страницы
+}
+
+func runHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		// fmt.Fprintln(w, "Метод GET, копай дальше")
+		http.NotFound(w, r)
+	case "POST":
+		controller.RunProcess(w, r)
+		//fmt.Fprintln(w, r.Form)
+	}
+}
+
+func makeHandler(fn func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		m := validPath.FindStringSubmatch(r.URL.Path)
+		if m == nil {
+			http.NotFound(w, r)
+			return
+		}
+		fn(w, r)
+	}
 }

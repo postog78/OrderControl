@@ -23,7 +23,7 @@ func (ci *CollectedInformation) Init(excelReport []TypeReport) {
 	ci.gw.Start()
 }
 
-func (ci *CollectedInformation) Go() {
+func (ci *CollectedInformation) Go() (newSheetID int64) {
 	// arrayPrepared := ci.Prepare()
 	arrayPrepared := ci.PrepareForOneSheet()
 
@@ -38,7 +38,7 @@ func (ci *CollectedInformation) Go() {
 	//Добавляем страницы. Считаем, что страницы уникальные и таких в базе ещё нет
 	mapNewSheetID := make(map[string]int64)
 	for _, prep := range arrayPrepared {
-		newSheetID := genegateInt64()
+		newSheetID = genegateInt64()
 		mapNewSheetID[prep.SheetName] = newSheetID
 		ci.gw.InsertSheet(ci.spreadSheetID, prep.SheetName, newSheetID)
 	}
@@ -79,6 +79,7 @@ func (ci *CollectedInformation) Go() {
 		ci.gw.MakeFilter(ci.spreadSheetID, "Фильтр на всё", gridRange)
 	}
 
+	return newSheetID
 }
 
 func dataPrepareForManySheet(readerReport []TypeReport) map[time.Time][][]interface{} {
@@ -162,6 +163,9 @@ func getSheetNameFromDate(t time.Time) string {
 
 func getSheetNameFromDateBeginEnd(t1, t2 time.Time) string {
 	//fmt.Println(fmt.Sprintf("%d", int64(time.Now().Unix())))
+	// fmt.Println("getSheetName")
+	// fmt.Println(t1)
+	// fmt.Println(t2)
 	return t1.Format("02.01.2006") + " - " + t2.Format("02.01.2006") + " (" + fmt.Sprintf("%d", int64(time.Now().Unix())) + ")"
 }
 
