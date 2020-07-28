@@ -15,9 +15,9 @@ import (
 
 //OkaCenter коннектор Ока Центр
 type OkaCenter struct {
-	Name       string
-	PathToDir  string
-	ListReport []model.TypeReport
+	Name             string
+	PathToDir        string
+	ListReport       []model.TypeReport
 	colTypeOfProduct int
 }
 
@@ -100,9 +100,13 @@ func (basis *OkaCenter) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 			}
 			weightTone, _ := proposalWeight.Float()
 			weight := int(weightTone * 1000)
-			date, _ := getDate(proposalDate.String())
+			date, err := proposalDate.GetTime(xlFile.Date1904)
+			if err != nil {
+				date, _ = getDate(proposalDate.String())
+			}
 			dateInPeriod := date.Equal(dateBegin) || date.Equal(dateEnd) || (date.After(dateBegin) && date.Before(dateEnd))
 			typeOfProduct := proposalTypeOfProduct.String()
+			log.Println("Исх. ", proposalDate.String(), date.Format("2006.02.01"), dateBegin.Format("2006.02.01"), dateEnd.Format("2006.02.01"))
 			if !dateInPeriod {
 				continue
 			}
@@ -111,19 +115,19 @@ func (basis *OkaCenter) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 			var elem model.TypeReport
 
 			elem = model.TypeReport{
-				NumOrder:  numOrder,
-				Weight:    weight,
-				Date:      date,
-				Volume:    volume,
-				Comment:   comment,
-				BasisName: basis.GetName(),
-				SheetName: currentSheet.Name,
-				Row:       i + 1,
-				FileName:  excelFileName,
+				NumOrder:      numOrder,
+				Weight:        weight,
+				Date:          date,
+				Volume:        volume,
+				Comment:       comment,
+				BasisName:     basis.GetName(),
+				SheetName:     currentSheet.Name,
+				Row:           i + 1,
+				FileName:      excelFileName,
 				TypeOfProduct: typeOfProduct,
 			}
 			listReport = append(listReport, elem)
-			// fmt.Println(elem) // Print values in columns B and D
+			//fmt.Println(elem) // Print values in columns B and D
 		}
 		for _, elem := range listReport {
 			fullListReport = append(fullListReport, elem)
@@ -157,8 +161,7 @@ func (basis *OkaCenter) GetName() string {
 }
 
 func getNumFromComment(comment string) (int, error) {
-	//Вторая попытка - найти просто строку с "Активно" без указания логина
-	re := regexp.MustCompile(fmt.Sprintf(`(?is)^\s*(\d+)`))
+	re := regexp.MustCompile(fmt.Sprintf(`(?is)^№?\s*(\d+)`))
 	allFoundStrings := re.FindAllStringSubmatch(comment, -1)
 	foundMatches := len(allFoundStrings)
 	if foundMatches == 1 {
