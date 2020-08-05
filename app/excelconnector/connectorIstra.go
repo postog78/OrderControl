@@ -15,10 +15,11 @@ type Istra struct {
 func (basis *Istra) Init() {
 	basis.Name = "Истра"
 	basis.PathToDir = path.Join(pathToShipments, "Истра")
-	basis.colComment = 8
+	basis.colComment = 9
 	basis.colVolume = 13
 	basis.colWeight = 12
 	basis.colDate = 1
 	basis.colTypeOfProduct = 10
 	basis.weightInTone = true
+	basis.colDriver = 8
 }

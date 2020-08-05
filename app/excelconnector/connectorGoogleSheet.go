@@ -40,3 +40,10 @@ func getFulllistReaderReport(listConnector []ConnectorExcelReader) []model.TypeR
 	}
 	return readerReportFull
 }
+
+func DeleteAllSheetsCollectedInformation(sheetIDExeptDeletion int64) {
+	var ci *model.CollectedInformation
+	ci = new(model.CollectedInformation)
+	ci.Init(make([]model.TypeReport, 0))
+	ci.DeleteAllSheets(sheetIDExeptDeletion)
+}

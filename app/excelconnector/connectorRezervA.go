@@ -146,19 +146,7 @@ func (basis *RezervA) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, er
 			}
 		}
 	}
-	// var dateOrder time.Time =
 
-	// for rows.Next() {
-	// 	row := rows.Columns()
-	// 	fmt.Printf("%s\t%s\n", row[9], row[10]) // Print values in columns B and D
-	// }
-	// 	for _, row := range sheet.Rows {
-	// 		for _, cell := range row.Cells {
-	// 			text, _ := cell.String()
-	// 			fmt.Printf("%s\n", text)
-	// 		}
-	// 	}
-	// }
 	basis.ListReport = fullListReport
 	return fullListReport, nil
 }

@@ -25,6 +25,7 @@ func (basis *WhitePillars) Init() {
 	basis.colWeight = 6
 	basis.colTypeOfProduct = 7
 	basis.weightInTone = false
+	basis.colDriver = 2
 }
 
 //getDateFromString Получение даты из строки

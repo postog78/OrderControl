@@ -20,6 +20,7 @@ type TypeReport struct {
 	Date          time.Time
 	Volume        int
 	Comment       string
+	Driver        string
 	BasisName     string
 	SheetName     string
 	Row           int
@@ -34,7 +35,7 @@ type dataToSearchInGoogleSheets struct {
 var spreadsheetID string = "183IDyrxg5PczVLewXMronbduZy50ukDiqNUGgnloqQQ"
 
 func (t TypeReport) String() string {
-	return fmt.Sprintf("Basis: %s; Sheet: %s; Row: %d, NumOrder: %v; TypeOfProduct: %s, Weight: %v; Volume: %v Date: %v, Comment: %s",
+	return fmt.Sprintf("Basis: %s; Sheet: %s; Row: %d, NumOrder: %v; TypeOfProduct: %s, Weight: %v; Volume: %v Date: %v, Comment: %s, Driver %s",
 		t.BasisName,
 		t.SheetName,
 		t.Row,
@@ -44,6 +45,7 @@ func (t TypeReport) String() string {
 		t.Volume,
 		t.Date,
 		t.Comment,
+		t.Driver,
 	)
 }
 
@@ -118,5 +120,3 @@ type sheetSetting struct {
 	Weight   columnNum //column
 	Date     columnNum //column
 }
-
-

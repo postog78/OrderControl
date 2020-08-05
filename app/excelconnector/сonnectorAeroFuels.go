@@ -17,6 +17,7 @@ type AeroFuels struct {
 	PathToDir        string
 	ListReport       []model.TypeReport
 	colTypeOfProduct int
+	colDriver        int
 }
 
 // var excelFileName string = `C:\Users\Dell\Documents\Go\OrderControl\Files\Отчеты базисов об отгрузках\Базис 1\ИНТ_Остатки 2020.xlsx`
@@ -28,6 +29,7 @@ func (basis *AeroFuels) Init() {
 	// basis.PathToDir = "C:/Users/User/go/src/OrderControl/Файлы/Отгрузки/Аэрофьюэлз"         //path.Join(pathToShipments, "Аэрофьюэл")
 	basis.PathToDir = path.Join(pathToShipments, basis.Name)
 	basis.colTypeOfProduct = 3
+	basis.colDriver = 11
 }
 
 func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, error) {
@@ -109,6 +111,16 @@ func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 					log.Fatal(err)
 				}
 
+				var driver string
+
+				if basis.colDriver >= 0 {
+					proposalDriver, err := currentSheet.Cell(i, basis.colDriver)
+					if err != nil {
+						log.Fatal(err)
+					}
+					driver = proposalDriver.String()
+				}
+
 				numOrder, _ := proposalNum.Int()
 				weight, _ := proposalWeight.Int()
 				// date, _ := proposalDate.GetTime(proposalDate.Row.Sheet.File.Date1904)
@@ -123,6 +135,7 @@ func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 					Weight:        weight,
 					Date:          date,
 					Volume:        volume,
+					Driver:        driver,
 					BasisName:     basis.GetName(),
 					SheetName:     currentSheet.Name,
 					Row:           i + 1,
@@ -138,19 +151,7 @@ func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 			}
 		}
 	}
-	// var dateOrder time.Time =
 
-	// for rows.Next() {
-	// 	row := rows.Columns()
-	// 	fmt.Printf("%s\t%s\n", row[9], row[10]) // Print values in columns B and D
-	// }
-	// 	for _, row := range sheet.Rows {
-	// 		for _, cell := range row.Cells {
-	// 			text, _ := cell.String()
-	// 			fmt.Printf("%s\n", text)
-	// 		}
-	// 	}
-	// }
 	basis.ListReport = fullListReport
 	return fullListReport, nil
 }

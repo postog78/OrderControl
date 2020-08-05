@@ -20,4 +20,5 @@ func (basis *MainSpecialConstruction) Init() {
 	basis.colWeight = 9
 	basis.weightInTone = true
 	basis.colTypeOfProduct = 7
+	basis.colDriver = 5
 }

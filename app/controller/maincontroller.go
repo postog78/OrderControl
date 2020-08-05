@@ -16,6 +16,7 @@ type PageMainView struct {
 	Title                       string
 	DateBegin, DateEnd, DateNow time.Time
 	DayOfWeek                   string
+	EraseAnotherLists           bool
 }
 
 //CreateTemplates Функция, которая компилирует шаблоны приложения в переменную templates
@@ -65,6 +66,7 @@ func LoadViewPage() (p PageMainView, err error) {
 	}
 
 	p.DateNow = now
+	p.EraseAnotherLists = true
 	return
 }
 
@@ -110,6 +112,7 @@ func RunProcess(w http.ResponseWriter, r *http.Request) {
 		dateEnd = now
 	}
 
+	
 	// fmt.Println(dateBegin)
 	// fmt.Println(dateEnd)
 
@@ -134,7 +137,12 @@ func RunProcess(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	excelconnector.UpdateGoogleSheetCollectedInformation(listConnector)
+	sheetID := excelconnector.UpdateGoogleSheetCollectedInformation(listConnector)
+
+	deleteAllSheet := r.FormValue("EraseAnotherLists")
+	if deleteAllSheet == "true" {
+		excelconnector.DeleteAllSheetsCollectedInformation(sheetID)
+	}
 
 	// if err := shadow.ShadowControlFromUser(comp, login); err != nil {
 	// 	fmt.Fprintln(w, "Ошибка ", err)

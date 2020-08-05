@@ -19,6 +19,7 @@ type OkaCenter struct {
 	PathToDir        string
 	ListReport       []model.TypeReport
 	colTypeOfProduct int
+	colDriver        int
 }
 
 // var excelFileName string = `C:\Users\Dell\Documents\Go\OrderControl\Files\Отчеты базисов об отгрузках\Базис 1\ИНТ_Остатки 2020.xlsx`
@@ -30,6 +31,7 @@ func (basis *OkaCenter) Init() {
 	// basis.PathToDir = "C:/Users/User/go/src/OrderControl/Файлы/Отгрузки/Аэрофьюэлз"         //path.Join(pathToShipments, "Аэрофьюэл")
 	basis.PathToDir = path.Join(pathToShipments, "ОкаЦентр")
 	basis.colTypeOfProduct = 4
+	basis.colDriver = 11
 }
 
 func (basis *OkaCenter) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, error) {
@@ -93,6 +95,16 @@ func (basis *OkaCenter) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 				log.Fatal(err)
 			}
 
+			var driver string
+
+			if basis.colDriver >= 0 {
+				proposalDriver, err := currentSheet.Cell(i, basis.colDriver)
+				if err != nil {
+					log.Fatal(err)
+				}
+				driver = proposalDriver.String()
+			}
+
 			comment := proposalComment.String()
 			numOrder, err := getNumFromComment(comment)
 			if err != nil {
@@ -106,7 +118,7 @@ func (basis *OkaCenter) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 			}
 			dateInPeriod := date.Equal(dateBegin) || date.Equal(dateEnd) || (date.After(dateBegin) && date.Before(dateEnd))
 			typeOfProduct := proposalTypeOfProduct.String()
-			log.Println("Исх. ", proposalDate.String(), date.Format("2006.02.01"), dateBegin.Format("2006.02.01"), dateEnd.Format("2006.02.01"))
+			// log.Println("Исх. ", proposalDate.String(), date.Format("2006.02.01"), dateBegin.Format("2006.02.01"), dateEnd.Format("2006.02.01"))
 			if !dateInPeriod {
 				continue
 			}
@@ -120,6 +132,7 @@ func (basis *OkaCenter) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 				Date:          date,
 				Volume:        volume,
 				Comment:       comment,
+				Driver:        driver,
 				BasisName:     basis.GetName(),
 				SheetName:     currentSheet.Name,
 				Row:           i + 1,

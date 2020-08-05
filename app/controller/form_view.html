@@ -18,6 +18,7 @@
     <input type="date" name="DateBegin" value={{.DateBegin.Format `2006-01-02`}}>
     <label for="DateEnd">По:</label>
     <input type="date" name="DateEnd" value={{.DateEnd.Format `2006-01-02`}}>
+    <label for="checkbox">Удалить предыдущие листы</label><input type="checkbox" id="EraseAnotherLists" name="EraseAnotherLists" value={{.EraseAnotherLists}}>
     <button type="submit" class="btn btn-primary">Запустить парсинг</button>
 </form>
 </body>

@@ -9,12 +9,14 @@ import (
 	"google.golang.org/api/sheets/v4"
 )
 
+//CollectedInformation структура хранит даннные о подключении и прочитанном списке отгрузок
 type CollectedInformation struct {
 	gw            *googlewraper.GoogleSheets
 	spreadSheetID string
 	excelReport   []TypeReport
 }
 
+//Init инициализация данных, соединение с сервером Гугла
 func (ci *CollectedInformation) Init(excelReport []TypeReport) {
 	ci.excelReport = excelReport
 	ci.spreadSheetID = "1Z7KluzcrGpLu_TVyGUBicwt_mpc1X3FhGlfGluUXh-8"
@@ -125,7 +127,9 @@ func dataPrepareForManySheet(readerReport []TypeReport) map[time.Time][][]interf
 func dataPrepareForOneSheet(readerReport []TypeReport) (values [][]interface{}, dateBegin, dateEnd time.Time) {
 	//Title
 	var title []interface{} = make([]interface{}, 0, 1)
-	title = append(title, "Базис", "Дата заявки", "Номер заявки", "Вид топлива", "Объем, Литры", "Вес, кг", "Комментарий", "Файл", "Лист", "Номер строки")
+	title = append(title,
+		"Базис", "Дата заявки", "Номер заявки", "Вид топлива", "Объем, Литры", "Вес, кг",
+		"Комментарий", "Водитель", "Файл", "Лист", "Номер строки")
 	values = make([][]interface{}, 0)
 	values = append(values, title)
 
@@ -143,7 +147,9 @@ func dataPrepareForOneSheet(readerReport []TypeReport) (values [][]interface{}, 
 
 		var row []interface{} = make([]interface{}, 0, 1)
 
-		row = append(row, rep.BasisName, rep.Date.Format("02.01.2006"), rep.NumOrder, rep.TypeOfProduct, rep.Volume, rep.Weight, rep.Comment, rep.FileName, rep.SheetName, rep.Row)
+		row = append(row,
+			rep.BasisName, rep.Date.Format("02.01.2006"), rep.NumOrder, rep.TypeOfProduct, rep.Volume,
+			rep.Weight, rep.Comment, rep.Driver, rep.FileName, rep.SheetName, rep.Row)
 		values = append(values, row)
 	}
 
@@ -162,10 +168,6 @@ func getSheetNameFromDate(t time.Time) string {
 }
 
 func getSheetNameFromDateBeginEnd(t1, t2 time.Time) string {
-	//fmt.Println(fmt.Sprintf("%d", int64(time.Now().Unix())))
-	// fmt.Println("getSheetName")
-	// fmt.Println(t1)
-	// fmt.Println(t2)
 	return t1.Format("02.01.2006") + " - " + t2.Format("02.01.2006") + " (" + fmt.Sprintf("%d", int64(time.Now().Unix())) + ")"
 }
 
@@ -201,4 +203,18 @@ func (ci *CollectedInformation) PrepareForOneSheet() (arrayPrepared []googlewrap
 
 func genegateInt64() int64 {
 	return int64(time.Now().Unix())
+}
+
+func (ci *CollectedInformation) DeleteAllSheets(sheetIDExeptDeletion int64) {
+
+	resp := ci.gw.SheetsService.Spreadsheets.Get(ci.spreadSheetID)
+	var ss *sheets.Spreadsheet
+	ss, _ = resp.Do()
+
+	for _, googleSheet := range ss.Sheets {
+		if googleSheet.Properties.SheetId != sheetIDExeptDeletion {
+			ci.gw.DeleteSheet(ci.spreadSheetID, googleSheet.Properties.SheetId)
+		}
+	}
+
 }

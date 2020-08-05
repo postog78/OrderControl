@@ -19,6 +19,7 @@ type FlatTable struct {
 	colComment, colVolume, colWeight int
 	colDate                          int //Особенная колонка, одно значение на лист
 	colTypeOfProduct                 int
+	colDriver                        int
 	rowBegin                         int
 	weightInTone                     bool
 }
@@ -35,6 +36,7 @@ func (basis *FlatTable) Init() {
 	basis.colDate = 1
 	basis.colTypeOfProduct = 10
 	basis.rowBegin = 6
+	basis.colDriver = -1
 	basis.weightInTone = false
 }
 
@@ -117,6 +119,16 @@ func (basis *FlatTable) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 					log.Fatal(err)
 				}
 
+				var driver string
+
+				if basis.colDriver >= 0 {
+					proposalDriver, err := currentSheet.Cell(i, basis.colDriver)
+					if err != nil {
+						log.Fatal(err)
+					}
+					driver = proposalDriver.String()
+				}
+
 				comment := proposalComment.String()
 
 				var weight int
@@ -151,6 +163,7 @@ func (basis *FlatTable) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, 
 					Date:          date,
 					Volume:        volume,
 					Comment:       comment,
+					Driver:        driver,
 					BasisName:     basis.GetName(),
 					SheetName:     currentSheet.Name,
 					Row:           i + 1,

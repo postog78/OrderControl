@@ -313,23 +313,6 @@ func (m mapGoogleSheetsByMonth) getSheetsOfDate(t time.Time) []*sheets.Sheet {
 // 	// }
 // }
 
-////Insert Перебираем список считанных из эксель данных и определяем, на каких листах они могут лежать.
-// func (t *mapGoogleSheetsByMonth) Insert(month time.Time, gs *sheets.Sheet) {
-// 	if t.mapSheets == nil {
-// 		t.mapSheets = make(map[time.Time]*sheets.Sheet)
-// 	}
-// 	googleSheets, ok := t.mapSheets[month]
-// 	if ok {
-// 		googleheets = append(googleSheets, gs)
-// 	} else {
-// 		var gooleSheets = make([]*sheets.Sheet, 0, 5)
-// 		googleSheets = append(googleSheets, gs)
-// 		// fmt.Println("Помещение", month)
-
-// 	}
-// 	t.mapSheets[month] = googleSheets
-// }
-
 //MakeFilter создаёт именованный фильтр для страницы
 func (g *GoogleSheets) MakeFilter(spreadSheetID string, title string, gridRange *sheets.GridRange) {
 	filterView := new(sheets.FilterView)
@@ -352,6 +335,27 @@ func (g *GoogleSheets) MakeFilter(spreadSheetID string, title string, gridRange 
 		log.Fatal(err)
 	}
 	// fmt.Printf("%#v\n", resp)
+}
+
+func (g *GoogleSheets) DeleteSheet(spreadSheetID string, sheetID int64) {
+	deleteSheetRequest := &sheets.DeleteSheetRequest{
+		SheetId: sheetID,
+	}
+
+	requests := []*sheets.Request{
+		{DeleteSheet: deleteSheetRequest},
+	}
+
+	rb3 := &sheets.BatchUpdateSpreadsheetRequest{
+		Requests: requests,
+
+		// TODO: Add desired fields of the requesdy.
+	}
+
+	_, err := g.SheetsService.Spreadsheets.BatchUpdate(spreadSheetID, rb3).Do()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // service = self.service
