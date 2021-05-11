@@ -22,6 +22,10 @@ type OkaCenter struct {
 	colDriver        int
 }
 
+func (basis *OkaCenter) ItIsMyFormat(excelFileName string) (bool, error) {
+	return false, nil
+}
+
 // var excelFileName string = `C:\Users\Dell\Documents\Go\OrderControl\Files\Отчеты базисов об отгрузках\Базис 1\ИНТ_Остатки 2020.xlsx`
 
 //Init инициализация коннектора к экселю

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"path"
+	"strings"
 	"time"
 
 	"github.com/tealeg/xlsx"
@@ -18,6 +19,60 @@ type AeroFuels struct {
 	ListReport       []model.TypeReport
 	colTypeOfProduct int
 	colDriver        int
+	rowInfo          int
+}
+
+func (basis *AeroFuels) ItIsMyFormat(excelFileName string) (bool, error) {
+
+	strCaption := `Реестр выданных ТТН ООО "АЭРОФЬЮЭЛЗ Нижний Новгород"`
+	xlFile, err := xlsx.OpenFile(excelFileName)
+	if err != nil {
+		fmt.Printf("open failed: %s\n", err)
+		return false, err
+	}
+
+	numOfSheet := len(xlFile.Sheets)
+	switch {
+	case numOfSheet == 0:
+		return false, errors.New("This XLSX file contains no sheets")
+		// case sheetIndex >= sheetLen:
+		// 	return fmt.Errorf("No sheet %d available, please select a sheet between 0 and %d\n", sheetIndex, sheetLen-1)
+	}
+
+	myFormat := false
+
+	// listDatesForLoad := list.New()
+	// for _, dateOrder = range model.RangeDate(dateBegin, dateEnd) {
+	// 	shitName := dateOrder.Format("02.01")
+	// 	var currentSheet *xlsx.Sheet
+	// 	// fmt.Printf("%v\n", xlFile.Sheet)
+	// 	shitNameWasFound := false
+
+	for _, currentSheet := range xlFile.Sheets {
+
+		if !myFormat {
+			valueInfo, err := currentSheet.Cell(basis.rowInfo, 0)
+			if err != nil {
+				log.Fatal(err)
+			}
+			tmpVal, _ := currentSheet.Cell(2, 0)
+			log.Println(tmpVal.String())
+
+			tmpVal, _ = currentSheet.Cell(2, 1)
+			log.Println(tmpVal.String())
+
+			tmpVal, _ = currentSheet.Cell(3, 1)
+			log.Println(tmpVal.String())
+
+			if strings.Index(strings.ToUpper(valueInfo.String()), strings.ToUpper(strCaption)) > -1 {
+				myFormat = true
+			}
+
+		}
+		// listDatesForLoad.PushFront(dateSheet)
+	}
+
+	return myFormat, nil
 }
 
 // var excelFileName string = `C:\Users\Dell\Documents\Go\OrderControl\Files\Отчеты базисов об отгрузках\Базис 1\ИНТ_Остатки 2020.xlsx`
@@ -30,6 +85,7 @@ func (basis *AeroFuels) Init() {
 	basis.PathToDir = path.Join(pathToShipments, basis.Name)
 	basis.colTypeOfProduct = 3
 	basis.colDriver = 11
+	basis.rowInfo = 2
 }
 
 func (basis *AeroFuels) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, error) {

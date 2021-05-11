@@ -40,6 +40,10 @@ func (basis *FlatTable) Init() {
 	basis.weightInTone = false
 }
 
+func (basis *FlatTable) ItIsMyFormat(excelFileName string) (bool, error) {
+	return false, nil
+}
+
 func (basis *FlatTable) Read(dateBegin, dateEnd time.Time) ([]model.TypeReport, error) {
 
 	// fmt.Println(dateBegin)

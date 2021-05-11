@@ -181,7 +181,7 @@ func (ci *CollectedInformation) PrepareForManySheets() (arrayPrepared []googlewr
 		var prep googlewraper.PreparedDateToAppendIntoSpreadSheet
 		prep.Table = val
 		prep.SheetName = getSheetNameFromDate(date)
-		prep.Range = prep.SheetName + "!A1:" + string(googlewraper.ASCIISymbolA+len(val[0])-1) + fmt.Sprintf("%d", len(val))
+		prep.Range = prep.SheetName + "!A1:" + string(rune(googlewraper.ASCIISymbolA+len(val[0])-1)) + fmt.Sprintf("%d", len(val))
 		arrayPrepared[i] = prep
 		i++
 	}
@@ -195,7 +195,7 @@ func (ci *CollectedInformation) PrepareForOneSheet() (arrayPrepared []googlewrap
 	var prep googlewraper.PreparedDateToAppendIntoSpreadSheet
 	prep.Table = values
 	prep.SheetName = getSheetNameFromDateBeginEnd(dateBegin, dateEnd)
-	prep.Range = prep.SheetName + "!A1:" + string(googlewraper.ASCIISymbolA+len(values[0])-1) + fmt.Sprintf("%d", len(values))
+	prep.Range = prep.SheetName + "!A1:" + string(rune(googlewraper.ASCIISymbolA+len(values[0])-1)) + fmt.Sprintf("%d", len(values))
 	arrayPrepared[0] = prep
 
 	return arrayPrepared

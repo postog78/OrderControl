@@ -14,9 +14,12 @@ import (
 func main() {
 
 	controller.CreateTemplates()
+	controller.InitListConnector()
+
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.HandleFunc("/run/", makeHandler(runHandler))
 	http.HandleFunc("/result/", makeHandler(resultHandler))
+	http.HandleFunc("/getFileFormat/", makeHandler(getFileFormatHandler))
 	// http.HandleFunc("/edit/", makeHandler(editHandler))
 	// http.HandleFunc("/save/", makeHandler(saveHandler))
 	// http.HandleFunc("/add/", makeHandler(addHandler))
@@ -57,7 +60,7 @@ func open(url string) error {
 }
 
 var validPath = regexp.MustCompile(
-	"^/(view)/$|^/(run)/$|^/(result)/$")
+	"^/(view)/$|^/(run)/$|^/(result)/$|^/(getFileFormat)/$")
 
 // "^/(view)/$|^/(run)/$|^/(edit)/$|^(/edit(/save|/add|/delete)?)/$")
 
@@ -82,6 +85,17 @@ func runHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 	case "POST":
 		controller.RunProcess(w, r)
+		//fmt.Fprintln(w, r.Form)
+	}
+}
+
+func getFileFormatHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		// fmt.Fprintln(w, "Метод GET, копай дальше")
+		http.NotFound(w, r)
+	case "POST":
+		controller.UploadFiles(w, r)
 		//fmt.Fprintln(w, r.Form)
 	}
 }

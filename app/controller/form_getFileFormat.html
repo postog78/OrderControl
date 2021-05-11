@@ -12,28 +12,19 @@
 </head>
 <body>
 <h3>{{.Title}}</h3>
-<h4>Сегодня: {{.DayOfWeek}} {{.DateNow.Format "02.01.2006"}}г.</h3>
-<div>
-    <form enctype="multipart/form-data" method="post" action= "/getFileFormat/" >
-        <label for="formFileMultiple" class="form-label">Выберите файлы xlsx с отгрузками</label>
-        <input class="form-control" type="file" id="formFileMultiple" multiple name="files"/>
-        <!-- <label for="sendFiles" class="form-label">Отправка на сервер</label> -->
-        <input type="submit" value="Отправить" multiple id="sendFiles"></p>
-    </form> 
-</div>
-<!-- <div>
-    <form action= "/run/" method= "POST" enctype="application/x-www-form-urlencoded">
+<h4>Сегодня у нас: {{.DayOfWeek}} {{.DateNow.Format "02.01.2006"}}г.</h3>
+ <form action= "/run/" method= "POST" enctype="application/x-www-form-urlencoded">
         <label for="DateBegin">С:</label>
         <input type="date" name="DateBegin" value={{.DateBegin.Format `2006-01-02`}}>
         <label for="DateEnd">По:</label>
         <input type="date" name="DateEnd" value={{.DateEnd.Format `2006-01-02`}}>
-        <label for="checkbox">Удалить предыдущие листы разбора файлов в Google</label><input type="checkbox" id="EraseAnotherLists" name="EraseAnotherLists" value={{.EraseAnotherLists}}>
+        <h4>{{.ConnectorName}}</h4>
         <div>
             <button type="submit" class="btn btn-primary">Запустить парсинг</button>
         </div>
         
     </form>
-</div> -->
+</div>
 
 </body>
 </html>
